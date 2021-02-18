@@ -1,0 +1,95 @@
+@font-face {
+    font-family: 'Roboto Slab';
+    src: url(../fonts/RobotoSlab-Regular-webfont.woff);
+}
+
+@font-face {
+    font-family: 'Roboto Slab';
+    src: url(../fonts/RobotoSlab-Bold-webfont.woff);
+    font-weight: bold;
+}
+
+:root {
+
+    --board-size: 85vmin;
+    --blue: steelblue;
+    --red: #e23838;
+    --yellow: #ffb900;
+   
+}
+
+#outer {
+    display: table;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+  
+#middle {
+    display: table-cell;
+    vertical-align: middle;
+}
+  
+#inner {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h1{
+    text-align: center;
+    font-size: 19vw;
+    color: var(--blue);
+    margin-top: 0px;
+}
+
+body{
+    font-family: 'Roboto Slab', serif;
+    margin: 0px;
+    background-color: seashell;
+
+}
+
+.board{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+
+    border: 10px solid var(--blue);
+    border-radius: 25px;
+
+    width: var(--board-size);
+
+    height: calc(var(--board-size) - var(--board-size) / 7);
+
+    margin: auto;
+    margin-top: 100px;
+
+}
+
+.cell{
+    background-color: var(--blue);
+    position: relative;
+    background: radial-gradient(transparent 20px,var(--blue) 10px);
+
+}
+
+.cell:nth-child(odd){
+    background: radial-gradient(var(--red) 20px, var(--blue) 10px);
+
+}
+
+.cell:nth-child(even){
+    background: radial-gradient(var(--yellow) 20px, var(--blue) 10px);
+
+}
+
+.noselect {
+-webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+        -webkit-user-select: none; 
+           -moz-user-select: none; 
+            -ms-user-select: none; 
+                user-select: none; 
+}
+ 
