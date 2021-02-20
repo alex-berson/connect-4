@@ -1,6 +1,14 @@
 let board = [];
+
 const numberOfRows = 6;
 const numberOfColumns = 7;
+
+const human = 1;
+const ai = 2;
+
+let gameOver = false;
+
+let player;
 
 
 const disableTouchMove = () => {
@@ -17,42 +25,73 @@ const touchScreen = () => {
 const setEvents = () => {
     for (peg of document.querySelectorAll('.cell')){
         if (touchScreen()){
-            peg.addEventListener("touchstart", dropPiece);
+            peg.addEventListener("touchstart", humanMove);
         } else {
-            peg.addEventListener("mousedown", dropPiece);
+            peg.addEventListener("mousedown", humanMove);
         }
     }
 }
 
-const dropPiece = (e) => {
-
-    let el = e.currentTarget;
-
-    let column = Array.from(el.parentNode.children).indexOf(el) % 7;
-
-    if (typeof dropPiece.player == 'undefined') {
-        dropPiece.player = 1;
+const boardFull = () => {
+    for (let c = 0; c < numberOfColumns; c++) {
+        if (board[numberOfRows - 1][c] == 0) return false;
     }
 
-    if (typeof dropPiece.gameOver == 'undefined') {
-        dropPiece.gameOver = false;
-    }
+    return true;
+}
 
-    if (validMove(column) && !dropPiece.gameOver) {
+const togglePlayer = () => player = 3 - player;
+
+const dropPiece = (column) => {
+
+    if (validMove(column)) {
         
-        placePiece(freeRaw(column), column, dropPiece.player);
+        placePiece(freeRaw(column), column, player);
 
-        if (win(dropPiece.player)) dropPiece.gameOver = true;
+        if (win(player) || boardFull()) gameOver = true;
 
-        dropPiece.player = 3 - dropPiece.player;
-
+        togglePlayer();
 
     }
+}
+
+const aiMove = () => {
+
+    let column;
+
+    do{
+
+        column = Math.floor(Math.random() * Math.floor(numberOfColumns));
+
+    } while (!validMove(column));
+
+    dropPiece(column);
 
     printBoard();
 
     updateBoard();
 
+}
+
+const humanMove = (e) => {
+
+    if (gameOver) return;
+
+    let el = e.currentTarget;
+
+    let column = Array.from(el.parentNode.children).indexOf(el) % 7;
+
+    dropPiece(column);
+
+    printBoard();
+
+    updateBoard();
+
+    if (!gameOver) {
+
+        setTimeout(aiMove, 300);
+        
+    }
 }
 
 const updateBoard = () => {
@@ -137,9 +176,15 @@ const diagonalNegativeWin = (piece) => {
 const win = (piece) => {
 
     return horizontalWin(piece) || verticalWin(piece) || diagonalPositiveWin(piece) || diagonalNegativeWin(piece);
-
 }
 
+const randomFirst = () => {
+
+    player = (Math.random() < 0.5) ? human : ai;
+
+    if (player == ai) aiMove();
+
+}
 
 const init = () => {
 
@@ -147,8 +192,9 @@ const init = () => {
     resetBoard();
     setEvents();
 
-}
+    randomFirst();
 
+}
 
 window.onload = () => {
     document.fonts.ready.then(() => {
