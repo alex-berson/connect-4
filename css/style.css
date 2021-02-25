@@ -39,7 +39,7 @@
 
 h1{
     text-align: center;
-    font-size: 19vw;
+    font-size: 19.5vw;
     color: var(--blue);
     margin-top: 0px;
 }
@@ -82,16 +82,6 @@ body{
 .yellow{
     background: radial-gradient(var(--yellow) 20px, var(--blue) 10px);
 }
-
-/* .cell:nth-child(odd){
-    background: radial-gradient(var(--red) 20px, var(--blue) 10px);
-
-}
-
-.cell:nth-child(even){
-    background: radial-gradient(var(--yellow) 20px, var(--blue) 10px);
-
-} */
 
 .noselect {
 -webkit-tap-highlight-color: transparent;

@@ -1,5 +1,8 @@
 let board = [];
 
+let  moovingInterval; //
+
+
 const numberOfRows = 6;
 const numberOfColumns = 7;
 
@@ -11,43 +14,16 @@ let gameOver = false;
 
 let player;
 
-Object.defineProperties(Array.prototype, {
-    copy: {
-        value: function() {
-            return this.map(arr => arr.slice());
-        }
-    }
-});
-
-Object.defineProperties(Array.prototype, {
-    count: {
-        value: function(value) {
-            return this.filter(x => x == value).length;
-        }
-    }
-});
-
-Object.defineProperties(Array.prototype, {
-    row: {
-        value: function(value) {
-            return this[value];
-        }
-    }
-});
-
-Object.defineProperties(Array.prototype, {
-    column: {
-        value: function(value) {
-            return this.map(x => x[value]);
-        }
-    }
-});
-
-
 const disableTouchMove = () => {
 
     const preventDefault = (e) => e.preventDefault();
     document.body.addEventListener('touchmove', preventDefault, { passive: false });
+
+}
+
+const freeCells = (board) => {
+
+    return board.flat().count(empty);
 
 }
 
@@ -76,7 +52,14 @@ const boardFull = (board) => {
 const togglePlayer = () =>  player = player == ai ? human : ai;
 
 const checkEndGame = (board, color) =>  {
-    if (win(board, color) || boardFull(board)) gameOver = true;
+    if (win(board, color) || boardFull(board)) {
+        
+        gameOver = true;
+
+        // clearInterval(moovingInterval); //
+
+
+    }
 }
 
 const dropDisc = (board, column, color) => {
@@ -89,22 +72,22 @@ const aiMove = () => {
 
     let column;
 
-    // do{
-
-    //     column = Math.floor(Math.random() * Math.floor(numberOfColumns));
-
-    // } while (!validMove(board, column));
-
-    column = getBestMove(board, ai);
 
 
-    dropDisc(board, column, ai);
+    column = minimax(board, 6, true)[0];
 
-    checkEndGame(board, ai);
+    console.log(column);
+
+    // freeCells(board);
+
+
+
+    dropDisc(board, column, player);
+
+    checkEndGame(board, player);
 
     togglePlayer();
 
-    // printBoard(board);
 
     updateBoard(board);
 
@@ -118,9 +101,9 @@ const humanMove = (e) => {
 
     if (gameOver || !validMove(board, column)) return;
 
-    dropDisc(board, column, human);
+    dropDisc(board, column, player);
 
-    checkEndGame(board, human);
+    checkEndGame(board, player);
 
     togglePlayer();
 
@@ -154,7 +137,6 @@ const resetBoard = () => {
 
 }
 
-
 const validMove = (board, column) => {
 
 	return board[numberOfRows - 1][column] == 0;
@@ -178,8 +160,7 @@ const horizontalWin = (board, color) => {
 
     for (let c = 0; c < numberOfColumns - 3; c++) {
         for (let r = 0; r < numberOfRows; r++) {
-            if (board[r][c] == color && board[r][c + 1] == color &&
-                board[r][c + 2] == color && board[r][c + 3] == color) return true;
+            if (board[r][c] == color && board[r][c + 1] == color && board[r][c + 2] == color && board[r][c + 3] == color) return true;
         }
     }
 }
@@ -188,8 +169,7 @@ const verticalWin = (board, color) => {
 
     for (let c = 0; c < numberOfColumns; c++) {
         for (let r = 0; r < numberOfRows - 3; r++) {
-            if (board[r][c] == color && board[r + 1][c] == color &&
-                board[r + 2][c] == color && board[r + 3][c] == color) return true;
+            if (board[r][c] == color && board[r + 1][c] == color && board[r + 2][c] == color && board[r + 3][c] == color) return true;
         }
     }
 }
@@ -198,8 +178,7 @@ const diagonalPositiveWin = (board, color) => {
 
     for (let c = 0; c < numberOfColumns - 3; c++) {
         for (let r = 0; r < numberOfRows - 3; r++) {
-            if (board[r][c] == color && board[r + 1][c + 1] == color && 
-                board[r + 2][c + 2] == color && board[r + 3][c + 3] == color) return true;
+            if (board[r][c] == color && board[r + 1][c + 1] == color && board[r + 2][c + 2] == color && board[r + 3][c + 3] == color) return true;
         }
     }
 }
@@ -208,16 +187,14 @@ const diagonalNegativeWin = (board, color) => {
 
     for (let c = 0; c < numberOfColumns - 3; c++) {
         for (let r = 3; r < numberOfRows; r++) {
-            if (board[r][c] == color && board[r - 1][c + 1] == color &&
-                board[r - 2][c + 2] == color && board[r - 3][c + 3] == color) return true;
+            if (board[r][c] == color && board[r - 1][c + 1] == color && board[r - 2][c + 2] == color && board[r - 3][c + 3] == color) return true;
         }
     }
 }
 
 const win = (board, color) => {
 
-    return horizontalWin(board, color) || verticalWin(board, color) || 
-    diagonalPositiveWin(board, color) || diagonalNegativeWin(board, color);
+    return horizontalWin(board, color) || verticalWin(board, color) || diagonalPositiveWin(board, color) || diagonalNegativeWin(board, color);
 }
 
 const adjacent4Eval = (adjacent4, color) => {
@@ -232,17 +209,25 @@ const adjacent4Eval = (adjacent4, color) => {
 
     } else if (adjacent4.count(color) == 3 && adjacent4.count(empty) == 1) {
 
-        score += 10;
+        // score += 10;
+
+        score += 5;
     
 
     } else if (adjacent4.count(color) == 2 && adjacent4.count(empty) == 2) {
 
-        score += 5;
+        // score += 5;
+
+        score += 2;
+
     }
 
     if (adjacent4.count(reversedColor) == 3 && adjacent4.count(empty) == 1) {
 
-        score -= 80;
+        // score -= 80;
+
+        score -= 4;
+
     } 
 
     return score;
@@ -255,7 +240,10 @@ const centralColumnEval = (board, color) => {
 
     let centralColumn = board.column(3);
 
-    score = centralColumn.count(color) * 6;
+    // score = centralColumn.count(color) * 6;
+
+    score = centralColumn.count(color) * 3;
+
 
     return score;
 }
@@ -361,13 +349,37 @@ const diagonalNegativeEval = (board, color) => {
     return score;
 } 
 
+const bottomFork = (board, color) =>{
+
+    let score = 0;
+
+    let adjacent5 = [];
+
+    let fullRow = board.row(0);
+
+    color = color == ai ? human : ai;
+
+
+    for (let c = 0; c < 3; c++){
+
+        adjacent5 = fullRow.slice(c, c + 5);
+
+        if ((adjacent5[1] == color && adjacent5[3] == color || adjacent5[1] == color && adjacent5[2] || adjacent5[2] == color && adjacent5[3]) && adjacent5.count(empty) == 3) {
+
+            score -= 50;
+
+            break;
+        }
+    }
+
+    return 0;
+}
 
 const evaluatePosition = (board, color) => {
 
     let score = 0;
 
-    score = centralColumnEval(board, color) + horizontalEval(board, color) + verticalEval(board, color) + 
-            diagonalPositiveEval(board, color) + diagonalNegativeEval(board, color);
+    score = centralColumnEval(board, color) + horizontalEval(board, color) + verticalEval(board, color) + diagonalPositiveEval(board, color) + diagonalNegativeEval(board, color) + bottomFork(board, color);
 
     return score;
 }
@@ -382,21 +394,106 @@ const getValidMoves = (board) => {
 
     }
 
+    validMoves = validMoves.map((a) => [Math.random(),a]).sort((a,b) => a[0]-b[0]).map((a) => a[1]);
+
     return validMoves;
 }
+
+// const terminalNode = (board) => {
+
+// 	return win(board, human) || win(board, ai) || boardFull(board);
+// }
+
+
+
+function minimax(board, depth, maximizingPlayer) {
+
+
+    // console.log("minimax", depth);
+
+    let tempBoard;
+    let bestScore;
+    let validMoves = getValidMoves(board);
+    let opponent = player == ai ? human : ai;
+
+    let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
+
+
+    if (win(board, player)) return [null, 100 * (freeCells(board) + 1)];
+
+    if (win(board, opponent)) return [null, -100 * (freeCells(board) + 1)];
+
+    if (boardFull(board)) return [null, 0];
+
+    if (depth == 0) return [null, evaluatePosition(board, player)];
+
+    if (maximizingPlayer) {
+        
+        bestScore = -Infinity;
+        
+        for (let column of validMoves) {
+
+            tempBoard = board.copy();
+    
+            dropDisc(tempBoard, column, player);
+    
+            score = minimax(tempBoard, depth - 1, false)[1];
+    
+            if (score > bestScore) {
+                bestScore = score;
+                bestColumn = column;
+            }
+        }
+
+        // console.log(bestColumn, bestScore)
+
+        return [bestColumn, bestScore];
+
+
+    } else {
+
+        bestScore = Infinity;
+        
+        for (let column of validMoves) {
+
+            tempBoard = board.copy();
+    
+            dropDisc(tempBoard, column, opponent);
+    
+            score = minimax(tempBoard, depth - 1, true)[1];
+    
+            if (score < bestScore) {
+                bestScore = score;
+                bestColumn = column;
+            }
+        }
+
+        // console.log(bestColumn, bestScore)
+
+        return [bestColumn, bestScore];
+
+
+
+    }
+
+}
+
 
 const getBestMove = (board, color) => {
 
     let tempBoard;
+    let tempBoard2;
+
     let score;
+
+    let scoreArray = [0,0,0,0,0,0,0,] //
 
     let validMoves = getValidMoves(board);
 
-    let bestScore = 0;
+    let bestScore = -Infinity;
 
-    let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
-    for (column of validMoves) {
+    for (let column of validMoves) {
 
         tempBoard = board.copy();
 
@@ -404,11 +501,35 @@ const getBestMove = (board, color) => {
 
         score = evaluatePosition(tempBoard, color);
 
+        if (!win(tempBoard, color)) {
+
+            let reversedColor = color == ai ? human : ai;
+
+            let validMoves2 = getValidMoves(tempBoard);
+
+            // console.log(validMoves);
+
+            for (let column2 of validMoves2) {
+
+                tempBoard2 = tempBoard.copy();
+
+                dropDisc(tempBoard2, column2, reversedColor);
+
+                if (win(tempBoard2, reversedColor)) score -= 50;
+
+            }
+
+        }
+
+        scoreArray[column] = score; //
+
         if (score > bestScore) {
             bestScore = score;
             bestColumn = column;
         }
     }
+
+    // console.log(scoreArray); //
 
     return bestColumn;
 
@@ -417,6 +538,10 @@ const getBestMove = (board, color) => {
 const randomFirst = () => {
 
     player = (Math.random() < 0.5) ? human : ai;
+
+
+    // moovingInterval = setInterval(aiMove, 5); //
+
 
     if (player == ai) aiMove();
 
