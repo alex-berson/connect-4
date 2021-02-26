@@ -2,6 +2,8 @@ let board = [];
 
 let  moovingInterval; //
 
+let first; //
+
 
 const numberOfRows = 6;
 const numberOfColumns = 7;
@@ -60,7 +62,7 @@ const checkEndGame = (board, color) =>  {
         
         gameOver = true;
 
-        // clearInterval(moovingInterval); //
+        clearInterval(moovingInterval); //
 
 
     }
@@ -74,11 +76,32 @@ const dropDisc = (board, column, color) => {
 
 const aiMove = () => {
 
+    let startTime = new Date(); //
+
     let column;
 
-    [column, _] = minimax(board, 8, -Infinity, Infinity, true);
+    // let opponent = player == ai ? human : ai;
+
+    // if (player == first) {
+
+        [column, _] = minimax(board, 10, -Infinity, Infinity, true);
+
+    // } else {
+
+    //     [column, _] = negamax(board, 10, -Infinity, Infinity, 1);
+
+    // }
+
+
+
+    let endTime = new Date(); //
+
+    console.log((endTime - startTime) / 1000); //
 
     console.log(column);
+
+
+
 
     dropDisc(board, column, player);
 
@@ -87,6 +110,7 @@ const aiMove = () => {
     togglePlayer();
 
     updateBoard(board);
+
 
 }
 
@@ -421,7 +445,9 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
     let tempBoard;
     let bestScore;
     let validMoves = getValidMoves(board);
-    let opponent = player == ai ? human : ai;
+
+    let  opponent = player == ai ? human : ai;
+
 
     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
@@ -492,6 +518,49 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
 
 }
 
+function negamax(board, depth, alpha, beta, color) {
+
+    let tempBoard;
+    let bestScore;
+    let validMoves = getValidMoves(board);
+
+    let opponent = player == ai ? human : ai;
+
+    let currentPlayer = color == 1 ? player : opponent;
+
+    let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
+
+
+    if (depth == 0 || terminalNode(board)) return [null,  color * evaluatePosition(board, player)];
+
+        
+    bestScore = -Infinity;
+    
+    for (let column of validMoves) {
+
+        tempBoard = board.copy();
+
+        dropDisc(tempBoard, column, currentPlayer);
+
+        score = -negamax(tempBoard, depth - 1, -beta, -alpha, -color)[1];
+
+        if (score > bestScore) {
+
+            [bestScore, bestColumn] = [score, column];
+        }
+
+        alpha = Math.max(alpha, score);
+
+        if (alpha >= beta) break;
+
+    }
+
+    // console.log(bestColumn, bestScore)
+
+    return [bestColumn, bestScore];
+
+}
+
 
 const getBestMove = (board, color) => {
 
@@ -554,11 +623,13 @@ const randomFirst = () => {
 
     player = (Math.random() < 0.5) ? human : ai;
 
+    first = player; //
 
-    // moovingInterval = setInterval(aiMove, 50); //
+
+    moovingInterval = setInterval(aiMove, 50); //
 
 
-    if (player == ai) aiMove();
+    // if (player == ai) aiMove();
 
 
 
