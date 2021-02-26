@@ -24,7 +24,11 @@ const disableTouchMove = () => {
 const freeCells = (board) => {
 
     return board.flat().count(empty);
+}
 
+const occupiedCells = (board) => {
+
+    return numberOfRows * numberOfColumns - board.flat().count(empty);
 }
 
 const touchScreen = () => {
@@ -32,11 +36,11 @@ const touchScreen = () => {
 }
 
 const setEvents = () => {
-    for (let peg of document.querySelectorAll('.cell')){
+    for (let cell of document.querySelectorAll('.cell')){
         if (touchScreen()){
-            peg.addEventListener("touchstart", humanMove);
+            cell.addEventListener("touchstart", humanMove);
         } else {
-            peg.addEventListener("mousedown", humanMove);
+            cell.addEventListener("mousedown", humanMove);
         }
     }
 }
@@ -72,22 +76,15 @@ const aiMove = () => {
 
     let column;
 
-
-
-    column = minimax(board, 6, true)[0];
+    [column, _] = minimax(board, 8, -Infinity, Infinity, true);
 
     console.log(column);
-
-    // freeCells(board);
-
-
 
     dropDisc(board, column, player);
 
     checkEndGame(board, player);
 
     togglePlayer();
-
 
     updateBoard(board);
 
@@ -197,7 +194,7 @@ const win = (board, color) => {
     return horizontalWin(board, color) || verticalWin(board, color) || diagonalPositiveWin(board, color) || diagonalNegativeWin(board, color);
 }
 
-const adjacent4Eval = (adjacent4, color) => {
+const adjacent4Eval = (board, adjacent4, color) => {
 
     let score = 0;
 
@@ -205,7 +202,7 @@ const adjacent4Eval = (adjacent4, color) => {
 
     if (adjacent4.count(color) == 4) {
 
-        score += 100;
+        score += 100 * (freeCells(board) + 1);
 
     } else if (adjacent4.count(color) == 3 && adjacent4.count(empty) == 1) {
 
@@ -222,6 +219,14 @@ const adjacent4Eval = (adjacent4, color) => {
 
     }
 
+    if (adjacent4.count(reversedColor) == 4) {
+
+        // score -= 80;
+
+        score -= 100 * (freeCells(board) + 1);
+
+    } 
+
     if (adjacent4.count(reversedColor) == 3 && adjacent4.count(empty) == 1) {
 
         // score -= 80;
@@ -229,6 +234,8 @@ const adjacent4Eval = (adjacent4, color) => {
         score -= 4;
 
     } 
+
+
 
     return score;
 
@@ -263,7 +270,7 @@ const horizontalEval = (board, color) => {
 
             adjacent4 = fullRow.slice(c, c + 4);
 
-            score += adjacent4Eval(adjacent4, color);
+            score += adjacent4Eval(board, adjacent4, color);
 
         }
     }
@@ -287,7 +294,7 @@ const verticalEval = (board, color) => {
 
             adjacent4 = fullColumn.slice(r, r + 4);
 
-            score += adjacent4Eval(adjacent4, color);
+            score += adjacent4Eval(board, adjacent4, color);
 
         }
 
@@ -315,7 +322,7 @@ const diagonalPositiveEval = (board, color) => {
 
             }
 
-            score += adjacent4Eval(adjacent4, color);
+            score += adjacent4Eval(board, adjacent4, color);
 
         }
     }
@@ -341,7 +348,7 @@ const diagonalNegativeEval = (board, color) => {
 
             }
 
-            score += adjacent4Eval(adjacent4, color);
+            score += adjacent4Eval(board, adjacent4, color);
 
         }
     }
@@ -399,14 +406,14 @@ const getValidMoves = (board) => {
     return validMoves;
 }
 
-// const terminalNode = (board) => {
+const terminalNode = (board) => {
 
-// 	return win(board, human) || win(board, ai) || boardFull(board);
-// }
+	return win(board, human) || win(board, ai) || boardFull(board);
+}
 
 
 
-function minimax(board, depth, maximizingPlayer) {
+function minimax(board, depth, alpha, beta, maximizingPlayer) {
 
 
     // console.log("minimax", depth);
@@ -419,13 +426,13 @@ function minimax(board, depth, maximizingPlayer) {
     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
 
-    if (win(board, player)) return [null, 100 * (freeCells(board) + 1)];
+    // if (win(board, player)) return [null, 100 * (freeCells(board) + 1)];
 
-    if (win(board, opponent)) return [null, -100 * (freeCells(board) + 1)];
+    // if (win(board, opponent)) return [null, -100 * (freeCells(board) + 1)];
 
-    if (boardFull(board)) return [null, 0];
+    // if (boardFull(board)) return [null, 0];
 
-    if (depth == 0) return [null, evaluatePosition(board, player)];
+    if (depth == 0 || terminalNode(board)) return [null,  evaluatePosition(board, player)];
 
     if (maximizingPlayer) {
         
@@ -437,12 +444,17 @@ function minimax(board, depth, maximizingPlayer) {
     
             dropDisc(tempBoard, column, player);
     
-            score = minimax(tempBoard, depth - 1, false)[1];
+            [_, score] = minimax(tempBoard, depth - 1, alpha, beta, false);
     
             if (score > bestScore) {
-                bestScore = score;
-                bestColumn = column;
+
+                [bestScore, bestColumn] = [score, column];
             }
+
+            alpha = Math.max(alpha, score);
+
+            if (alpha >= beta) break;
+
         }
 
         // console.log(bestColumn, bestScore)
@@ -460,19 +472,21 @@ function minimax(board, depth, maximizingPlayer) {
     
             dropDisc(tempBoard, column, opponent);
     
-            score = minimax(tempBoard, depth - 1, true)[1];
+            [_, score] = minimax(tempBoard, depth - 1, alpha, beta, true);
     
             if (score < bestScore) {
-                bestScore = score;
-                bestColumn = column;
+
+                [bestScore, bestColumn] = [score, column];
             }
+
+            beta = Math.min(beta, score);
+
+            if (beta <= alpha) break;
         }
 
         // console.log(bestColumn, bestScore)
 
         return [bestColumn, bestScore];
-
-
 
     }
 
@@ -524,8 +538,9 @@ const getBestMove = (board, color) => {
         scoreArray[column] = score; //
 
         if (score > bestScore) {
-            bestScore = score;
-            bestColumn = column;
+
+            [bestScore, bestColumn] = [score, column];
+
         }
     }
 
@@ -540,10 +555,22 @@ const randomFirst = () => {
     player = (Math.random() < 0.5) ? human : ai;
 
 
-    // moovingInterval = setInterval(aiMove, 5); //
+    // moovingInterval = setInterval(aiMove, 50); //
 
 
     if (player == ai) aiMove();
+
+
+
+
+    // do {
+
+    //     setTimeout(aiMove(), 300);
+
+    //     updateBoard(board);
+
+
+    // } while (!gameOver);
 
 }
 
