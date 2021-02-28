@@ -1,12 +1,11 @@
 let board = [];
 
-let  moovingInterval; //
-
-let first; //
-
+let moovingInterval;
 
 const numberOfRows = 6;
 const numberOfColumns = 7;
+
+const timeLimit = 300;
 
 const empty = 0
 const human = 1;
@@ -68,6 +67,11 @@ const checkEndGame = (board, color) =>  {
     }
 }
 
+const timeOut = (startTime) => {
+
+    return new Date() - startTime >= timeLimit;
+} 
+
 const dropDisc = (board, column, color) => {
 
     board[freeRaw(board, column)][column] = color;
@@ -76,31 +80,75 @@ const dropDisc = (board, column, color) => {
 
 const aiMove = () => {
 
-    let startTime = new Date(); //
+    let depth = 0;
 
-    let column;
+    let scores, column, score;
+
+    // firstMove = 0;
+
+
+    let lastScores, lastColumn, lastScore;
+
+    let startTime = new Date();
+
 
     // let opponent = player == ai ? human : ai;
 
-    // if (player == first) {
+    // if (player == ai) {
 
-        [column, _] = minimax(board, 10, -Infinity, Infinity, true);
+        // firstMove = column;
+        
+        do{
+
+            depth++
+
+            [scores, column, score] = minimax(board, depth, -Infinity, Infinity, true, startTime, true);
+
+            // firstMove = column;
+
+            if (new Date() - startTime >= timeLimit) console.log("timeout");
+
+            if (timeOut(startTime)) {
+
+                [scores, column, score] = [lastScores, lastColumn, lastScore]
+
+                depth--;
+
+                break;
+
+            } else {
+
+                [lastScores, lastColumn, lastScore] = [scores, column, score]
+
+            }
+
+        } while(depth < freeCells(board))
+
+
+        console.log("depthLimit" , depth);
+
 
     // } else {
 
-    //     [column, _] = negamax(board, 10, -Infinity, Infinity, 1);
+
+    // //     // firstMove = column;
+
+
+    //         [scores, column, score] = negamax(board, depth, -Infinity, Infinity, 1);
+
+
+
+
 
     // }
 
 
+    console.log("score: ", score );
+    console.log("scores: ", scores );
 
-    let endTime = new Date(); //
-
-    console.log((endTime - startTime) / 1000); //
+    console.log((new Date() - startTime) / 1000); //
 
     console.log(column);
-
-
 
 
     dropDisc(board, column, player);
@@ -403,6 +451,8 @@ const bottomFork = (board, color) =>{
         }
     }
 
+    // if (score != 0) console.log(score);
+
     return 0;
 }
 
@@ -437,10 +487,12 @@ const terminalNode = (board) => {
 
 
 
-function minimax(board, depth, alpha, beta, maximizingPlayer) {
+function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, root) {
 
 
     // console.log("minimax", depth);
+
+    let scores = [];
 
     let tempBoard;
     let bestScore;
@@ -448,17 +500,53 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
 
     let  opponent = player == ai ? human : ai;
 
+    let index;
+
 
     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
 
-    // if (win(board, player)) return [null, 100 * (freeCells(board) + 1)];
+    // if (win(board, player)) return [null, null, 100 * (freeCells(board) + 1)];
 
-    // if (win(board, opponent)) return [null, -100 * (freeCells(board) + 1)];
+    // if (win(board, opponent)) return [null, null, -100 * (freeCells(board) + 1)];
 
     // if (boardFull(board)) return [null, 0];
 
-    if (depth == 0 || terminalNode(board)) return [null,  evaluatePosition(board, player)];
+    // if (win(board, player)) return [null, null, depth + 1];
+
+    // if (win(board, opponent)) return [null, null, -(depth + 1)];
+
+    // if (depth == 0 || boardFull(board)) return [null, null,  0];
+
+
+    if (depth == 0 || terminalNode(board)) return [null, null,  evaluatePosition(board, player)];
+
+    // if (depth == 0 || terminalNode(board)) return [null, null,  0];
+
+    // if (depth >= depthLimit - 2) {
+
+        // let endTime = new Date(); //
+
+        if (timeOut(startTime)) {
+
+            // timeOut = true;
+
+            return [null, null, null];
+        }
+
+        // console.log("firstMove ", firstMove);
+
+
+        // console.log("validMoves before ", validMoves);
+
+        // index = validMoves.indexOf(firstMove);
+
+        // [validMoves[0], validMoves[index]] = [validMoves[index], validMoves[0]];
+        
+        // console.log("validMoves after ", validMoves);
+
+    // };
+
 
     if (maximizingPlayer) {
         
@@ -470,7 +558,15 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
     
             dropDisc(tempBoard, column, player);
     
-            [_, score] = minimax(tempBoard, depth - 1, alpha, beta, false);
+            [_, _, score] = minimax(tempBoard, depth - 1, alpha, beta, false, startTime, false);
+
+            if (root) {
+
+                scores[column] = score;
+                
+            }
+
+            // console.log(window.depth);
     
             if (score > bestScore) {
 
@@ -485,7 +581,7 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
 
         // console.log(bestColumn, bestScore)
 
-        return [bestColumn, bestScore];
+        return [scores, bestColumn, bestScore];
 
 
     } else {
@@ -498,7 +594,7 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
     
             dropDisc(tempBoard, column, opponent);
     
-            [_, score] = minimax(tempBoard, depth - 1, alpha, beta, true);
+            [_, _, score] = minimax(tempBoard, depth - 1, alpha, beta, true, startTime, false);
     
             if (score < bestScore) {
 
@@ -512,17 +608,122 @@ function minimax(board, depth, alpha, beta, maximizingPlayer) {
 
         // console.log(bestColumn, bestScore)
 
-        return [bestColumn, bestScore];
+        return [scores, bestColumn, bestScore];
 
     }
 
 }
+
+// function minimax0(board, depth, alpha, beta, maximizingPlayer) {
+
+
+//     // console.log("minimax", depth);
+
+//     let scores = [];
+
+//     let tempBoard;
+//     let bestScore;
+//     let validMoves = getValidMoves(board);
+
+//     let  opponent = player == ai ? human : ai;
+
+
+//     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
+
+
+//     // if (win(board, player)) return [null, null, 100 * (freeCells(board) + 1)];
+
+//     // if (win(board, opponent)) return [null, null, -100 * (freeCells(board) + 1)];
+
+//     // if (boardFull(board)) return [null, 0];
+
+//     if (win(board, player)) return [null, null, depth + 1];
+
+//     if (win(board, opponent)) return [null, null, -(depth + 1)];
+
+//     if (depth == 0 || boardFull(board)) return [null, null,  0];
+
+
+//     // if (depth == 0 || terminalNode(board)) return [null, null,  evaluatePosition(board, player)];
+
+//     // if (depth == 0 || terminalNode(board)) return [null, null,  0];
+
+
+//     if (maximizingPlayer) {
+        
+//         bestScore = -Infinity;
+        
+//         for (let column of validMoves) {
+
+//             tempBoard = board.copy();
+    
+//             dropDisc(tempBoard, column, player);
+    
+//             [_, _, score] = minimax0(tempBoard, depth - 1, alpha, beta, false);
+
+//             if (depth == depthLimit) {
+
+
+
+//                 scores[column] = score;
+                
+//             }
+
+//             // console.log(window.depth);
+    
+//             if (score > bestScore) {
+
+//                 [bestScore, bestColumn] = [score, column];
+//             }
+
+//             alpha = Math.max(alpha, score);
+
+//             if (alpha >= beta) break;
+
+//         }
+
+//         // console.log(bestColumn, bestScore)
+
+//         return [scores, bestColumn, bestScore];
+
+
+//     } else {
+
+//         bestScore = Infinity;
+        
+//         for (let column of validMoves) {
+
+//             tempBoard = board.copy();
+    
+//             dropDisc(tempBoard, column, opponent);
+    
+//             [_, _, score] = minimax0(tempBoard, depth - 1, alpha, beta, true);
+    
+//             if (score < bestScore) {
+
+//                 [bestScore, bestColumn] = [score, column];
+//             }
+
+//             beta = Math.min(beta, score);
+
+//             if (beta <= alpha) break;
+//         }
+
+//         // console.log(bestColumn, bestScore)
+
+//         return [scores, bestColumn, bestScore];
+
+//     }
+
+// }
 
 function negamax(board, depth, alpha, beta, color) {
 
     let tempBoard;
     let bestScore;
     let validMoves = getValidMoves(board);
+    let scores = [];
+
 
     let opponent = player == ai ? human : ai;
 
@@ -530,8 +731,19 @@ function negamax(board, depth, alpha, beta, color) {
 
     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
+    if (depth == depthLimit) {
 
-    if (depth == 0 || terminalNode(board)) return [null,  color * evaluatePosition(board, player)];
+
+        // console.log(firstMove);
+
+        // [validMoves[0], validMoves[validMoves.indexOf(firstMove)]] = [validMoves[validMoves.indexOf(firstMove)], validMoves[0]];
+
+        // console.log(validMoves);
+
+    }
+
+
+    if (depth == 0 || terminalNode(board)) return [null, null,  color * evaluatePosition(board, player)];
 
         
     bestScore = -Infinity;
@@ -542,7 +754,13 @@ function negamax(board, depth, alpha, beta, color) {
 
         dropDisc(tempBoard, column, currentPlayer);
 
-        score = -negamax(tempBoard, depth - 1, -beta, -alpha, -color)[1];
+        score = -negamax(tempBoard, depth - 1, -beta, -alpha, -color)[2];
+
+        if (depth == depthLimit) {
+
+            scores[column] = score;
+            
+        }
 
         if (score > bestScore) {
 
@@ -557,12 +775,12 @@ function negamax(board, depth, alpha, beta, color) {
 
     // console.log(bestColumn, bestScore)
 
-    return [bestColumn, bestScore];
+    return [scores, bestColumn, bestScore];
 
 }
 
 
-const getBestMove = (board, color) => {
+const evristik = (board, color) => {
 
     let tempBoard;
     let tempBoard2;
@@ -623,25 +841,9 @@ const randomFirst = () => {
 
     player = (Math.random() < 0.5) ? human : ai;
 
-    first = player; //
-
-
-    moovingInterval = setInterval(aiMove, 50); //
-
+    moovingInterval = setInterval(aiMove, 500); //
 
     // if (player == ai) aiMove();
-
-
-
-
-    // do {
-
-    //     setTimeout(aiMove(), 300);
-
-    //     updateBoard(board);
-
-
-    // } while (!gameOver);
 
 }
 
