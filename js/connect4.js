@@ -5,13 +5,11 @@ let moovingInterval;
 const numberOfRows = 6;
 const numberOfColumns = 7;
 
-const timeLimit = 300;
+const timeLimit = 500;
 
 const empty = 0
 const human = 1;
 const ai = 2;
-
-let gameOver = false;
 
 let player;
 
@@ -63,7 +61,6 @@ const checkEndGame = (board, color) =>  {
 
         clearInterval(moovingInterval); //
 
-
     }
 }
 
@@ -80,12 +77,11 @@ const dropDisc = (board, column, color) => {
 
 const aiMove = () => {
 
-    let depth = 0;
+    let columnes = [];
+
+    let depth = 3;
 
     let scores, column, score;
-
-    // firstMove = 0;
-
 
     let lastScores, lastColumn, lastScore;
 
@@ -96,15 +92,13 @@ const aiMove = () => {
 
     // if (player == ai) {
 
-        // firstMove = column;
         
         do{
 
             depth++
 
-            [scores, column, score] = minimax(board, depth, -Infinity, Infinity, true, startTime, true);
+            [scores, column, score] = minimax(board, depth, -Infinity, Infinity, true, startTime, true, columnes);
 
-            // firstMove = column;
 
             if (new Date() - startTime >= timeLimit) console.log("timeout");
 
@@ -120,35 +114,35 @@ const aiMove = () => {
 
                 [lastScores, lastColumn, lastScore] = [scores, column, score]
 
+                if (columnes.indexOf(column) == -1) columnes.unshift(column);
+
             }
 
         } while(depth < freeCells(board))
 
 
-        console.log("depthLimit" , depth);
+        console.log("depth: " , depth);
 
 
     // } else {
 
 
-    // //     // firstMove = column;
-
 
     //         [scores, column, score] = negamax(board, depth, -Infinity, Infinity, 1);
 
 
-
-
-
     // }
+
+    console.log("column: ", column);
+
+    console.log("columnes: ", columnes);
 
 
     console.log("score: ", score );
     console.log("scores: ", scores );
 
-    console.log((new Date() - startTime) / 1000); //
+    console.log("time: ", (new Date() - startTime) / 1000); //
 
-    console.log(column);
 
 
     dropDisc(board, column, player);
@@ -182,7 +176,7 @@ const humanMove = (e) => {
 
     if (!gameOver) {
 
-        setTimeout(aiMove, 300);
+        setTimeout(aiMove, timeLimit);
         
     }
 }
@@ -487,7 +481,7 @@ const terminalNode = (board) => {
 
 
 
-function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, root) {
+function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, root, columnes) {
 
 
     // console.log("minimax", depth);
@@ -547,6 +541,14 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, root) {
 
     // };
 
+    if (root) {
+
+        validMoves = [...new Set([...columnes, ...validMoves])];
+
+        // console.log("validMoves: ", validMoves);
+
+    }
+
 
     if (maximizingPlayer) {
         
@@ -558,7 +560,7 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, root) {
     
             dropDisc(tempBoard, column, player);
     
-            [_, _, score] = minimax(tempBoard, depth - 1, alpha, beta, false, startTime, false);
+            [_, _, score] = minimax(tempBoard, depth - 1, alpha, beta, false, startTime, false, columnes);
 
             if (root) {
 
@@ -594,7 +596,7 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, root) {
     
             dropDisc(tempBoard, column, opponent);
     
-            [_, _, score] = minimax(tempBoard, depth - 1, alpha, beta, true, startTime, false);
+            [_, _, score] = minimax(tempBoard, depth - 1, alpha, beta, true, startTime, false, columnes);
     
             if (score < bestScore) {
 
@@ -841,13 +843,21 @@ const randomFirst = () => {
 
     player = (Math.random() < 0.5) ? human : ai;
 
-    moovingInterval = setInterval(aiMove, 500); //
+    moovingInterval = setInterval(aiMove, 600); //
 
     // if (player == ai) aiMove();
 
 }
 
 const init = () => {
+
+    var a = [1, 2, 3, 4, 5], b = [4, 101, 2, 5, 1, 10];
+
+    // var c = a.concat(b.filter((item) => a.indexOf(item) < 0));
+
+    var b = [...new Set([...a, ...b])];
+
+    console.log(b) // c is [1, 2, 3, 101, 10]
 
     disableTouchMove();
     resetBoard();
