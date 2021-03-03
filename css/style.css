@@ -11,10 +11,12 @@
 
 :root {
 
-    --board-size: 85vmin;
+    --board-size: 0.87;
     --blue: steelblue;
     --red: #e23838;
     --yellow: #ffb900;
+    --hole-size: 5.5vmin;
+
    
 }
 
@@ -39,7 +41,7 @@
 
 h1{
     text-align: center;
-    font-size: 19.5vw;
+    font-size: 20vmin;
     color: var(--blue);
     margin-top: 0px;
 }
@@ -70,17 +72,67 @@ body{
 .cell{
     background-color: var(--blue);
     position: relative;
-    background: radial-gradient(transparent 20px,var(--blue) 10px);
+    background: radial-gradient(transparent var(--hole-size),var(--blue) calc(var(--hole-size) / 2));
 
 }
 
 .red{
-    background: radial-gradient(var(--red) 20px, var(--blue) 10px);
+    background: radial-gradient(var(--red) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
 
 }
 
 .yellow{
-    background: radial-gradient(var(--yellow) 20px, var(--blue) 10px);
+    background: radial-gradient(var(--yellow) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
+}
+
+/* @media (orientation: landscape) and (max-height: 460px){ */
+
+@media (orientation: landscape){
+
+    h1{
+        display: none;
+    }
+
+    .board{
+        margin-top: 0;
+        margin-bottom: -50px;
+    }
+}
+
+@media (min-width: 460px) and (min-height: 460px){
+
+    :root {
+
+        --hole-size: 5.5vmin;
+       
+    }
+
+    h1{
+        font-size: 20vmin;
+    }
+
+    .board{
+        border: 20px solid var(--blue);
+        border-radius: 50px;
+    }
+
+    .cell{
+        background-color: var(--blue);
+        position: relative;
+        background: radial-gradient(transparent var(--hole-size),var(--blue) calc(var(--hole-size) / 2));
+    
+    }
+
+    .red{
+        background: radial-gradient(var(--red) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
+    
+    }
+    
+    .yellow{
+        background: radial-gradient(var(--yellow) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
+    }
+
+
 }
 
 .noselect {
