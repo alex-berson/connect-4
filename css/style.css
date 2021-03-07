@@ -15,7 +15,10 @@
     --blue: steelblue;
     --red: #e23838;
     --yellow: #ffb900;
-    --hole-size: 5.5vmin;
+    /* --hole-size: 5.5vmin; */
+
+    --hole-size: calc(var(--board-size) / 7 / 1.15);
+
 
    
 }
@@ -55,6 +58,9 @@ body{
 
 .board{
     display: grid;
+
+    position: relative;
+
     grid-template-columns: repeat(7, 1fr);
 
     border: 10px solid var(--blue);
@@ -70,18 +76,70 @@ body{
 }
 
 .cell{
-    background-color: var(--blue);
+
+    /* background-color: snow; */
     position: relative;
-    background: radial-gradient(transparent var(--hole-size),var(--blue) calc(var(--hole-size) / 2));
+    /* background: radial-gradient(transparent var(--hole-size), var(--blue) calc(var(--hole-size) / 2)); */
+
+    /* transition: background 1s ease-out;   */
+
+    overflow: hidden;
+
+
+}
+
+.cell:after{
+    content:" ";
+    position:absolute;
+    left:0; right:0;
+    margin: calc((var(--board-size) / 7 - var(--hole-size)) / 2) auto;
+
+    /* margin: 0 auto; */
+
+    width: var(--hole-size);
+    height: var(--hole-size);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1000px var(--blue);
+}
+
+.disc{
+
+
+    border-radius: 50%;
+
+    height:  calc(var(--hole-size) + 2px);
+    width:   calc(var(--hole-size) + 2px);
+
+    /* background-color: black; */
+
+    position: absolute;
+    opacity: 0;
+    /* transition: opacity 1s ease-out;   */
+
+    /* transition: transform 0.6s ease-in; */
+
+    z-index: -100;
+
 
 }
 
 .red{
+
+        background-color: var(--red);
+}
+
+.yellow{
+
+    background-color: var(--yellow);
+
+}
+
+.red-hole{
     background: radial-gradient(var(--red) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
 
 }
 
-.yellow{
+.yellow-hole{
     background: radial-gradient(var(--yellow) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
 }
 
@@ -103,7 +161,7 @@ body{
 
     :root {
 
-        --hole-size: 5.5vmin;
+        /* --hole-size: 5.5vmin; */
        
     }
 
@@ -117,11 +175,18 @@ body{
     }
 
     .cell{
-        background-color: var(--blue);
+        /* background-color: var(--blue); */
+
+
         position: relative;
-        background: radial-gradient(transparent var(--hole-size),var(--blue) calc(var(--hole-size) / 2));
+        /* background: radial-gradient(transparent var(--hole-size),var(--blue) calc(var(--hole-size) / 2)); */
+
+        overflow:hidden;
+
     
     }
+
+    
 
     .red{
         background: radial-gradient(var(--red) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));

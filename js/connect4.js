@@ -1,23 +1,20 @@
 let board = [];
-
 let moovingInterval;
-
 let gameOver;
+let player;
+let depth = 1;
+
+let moveDone = true;
 
 const numberOfRows = 6;
 const numberOfColumns = 7;
-
 const timeLimit = 500;
-
-const depthLimit = 7;
-
+const depthLimit = 7;  //
 const empty = 0
 const human = 1;
 const ai = 2;
+const durations = [0.15, 0.28, 0.38, 0.46, 0.54, 0.61];
 
-let depth = 1;
-
-let player;
 
 const boardSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-size'));
 
@@ -26,8 +23,6 @@ if (window.innerHeight > window.innerWidth) {
 } else {
     document.documentElement.style.setProperty('--board-size', Math.ceil(window.outerHeight * boardSize / 7) * 7 + 'px');
 }
-
-console.log()
 
 const disableTouchMove = () => {
 
@@ -50,12 +45,22 @@ const touchScreen = () => {
     return matchMedia('(hover: none)').matches;
 }
 
-const setEvents = () => {
+const enableTouch = () => {
     for (let cell of document.querySelectorAll('.cell')){
         if (touchScreen()){
             cell.addEventListener("touchstart", humanMove);
         } else {
             cell.addEventListener("mousedown", humanMove);
+        }
+    }
+}
+
+const disableTouch = () => {
+    for (let cell of document.querySelectorAll('.cell')){
+        if (touchScreen()){
+            cell.removeEventListener("touchstart", humanMove);
+        } else {
+            cell.removeEventListener("mousedown", humanMove);
         }
     }
 }
@@ -71,6 +76,7 @@ const boardFull = (board) => {
 const togglePlayer = () =>  player = player == ai ? human : ai;
 
 const checkEndGame = (board, color) =>  {
+
     if (win(board, color) || boardFull(board)) {
         
         gameOver = true;
@@ -87,11 +93,18 @@ const timeOut = (startTime) => {
 
 const dropDisc = (board, column, color) => {
 
-    board[freeRaw(board, column)][column] = color;
+    try {
+        board[freeRaw(board, column)][column] = color;
+
+    } catch(e) {
+        console.log("error");
+
+        console.log(column);
+    }
 
 }
 
-const aiMove = () => {
+const aiMove = async (delay) => {
 
     let initialColumnes = [];
 
@@ -99,16 +112,29 @@ const aiMove = () => {
 
     let scores, column, score;
 
-    let validMoves;
+    let validMoves;  //
 
     let lastScores, lastColumn, lastScore;
 
     let startTime = new Date();
 
-    depth = Math.min(depth, freeCells(board) - 2);
+
+    // let startTime = new Date(Date.now() + delay);
 
 
-    // if (player == ai) {
+
+
+
+    depth = Math.max(Math.min(depth - 2, freeCells(board) - 2), 1);
+
+    // depth = Math.max(depth, 1);
+
+
+
+    console.log(depth);
+
+
+    if (freeCells(board) != numberOfColumns * numberOfRows) {
         
         do{
 
@@ -140,26 +166,33 @@ const aiMove = () => {
         } while(depth < freeCells(board));
 
 
+
         console.log("depth: " , depth);
 
-        depth -= 2;
+        // depth -= 2;
+
+        // depth = Math.max(depth - 2, 1);
 
 
+        await new Promise(r => setTimeout(r, timeLimit - (new Date() - startTime)));
 
-    // } else {
+
+    } else {
 
     //         [scores, column, score] = negamax(board, 7, -Infinity, Infinity, 1);
 
-    // }
+    column = 3;
+
+    }
 
 
-    console.log("column: ", column);
+    // console.log("column: ", column);
 
-    console.log("columnes: ", initialColumnes);
+    // console.log("columnes: ", initialColumnes);
 
 
-    console.log("score: ", score );
-    console.log("scores: ", scores );
+    // console.log("score: ", score );
+    // console.log("scores: ", scores );
 
 
 
@@ -187,6 +220,11 @@ const aiMove = () => {
 
     }
 
+    updateBoard(board, freeRaw(board, column), column, player);
+
+    setTimeout(enableTouch, [...durations].reverse()[freeRaw(board, column)] * 1000);
+
+    console.log([...durations].reverse()[freeRaw(board, column)] * 1000);
 
     dropDisc(board, column, player);
 
@@ -194,7 +232,12 @@ const aiMove = () => {
 
     togglePlayer();
 
-    updateBoard(board);
+    // requestAnimationFrame(() => {
+    //     requestAnimationFrame(() => {
+
+            // enableTouch();
+    //     });
+    // });
 
 
 }
@@ -203,9 +246,19 @@ const humanMove = (e) => {
 
     let el = e.currentTarget;
 
+    let delay;
+
     let column = Array.from(el.parentNode.children).indexOf(el) % 7;
 
     if (gameOver || !validMove(board, column)) return;
+
+    moveDone = false;
+
+    disableTouch();
+
+    delay = [...durations].reverse()[freeRaw(board, column)] * 1000;
+
+    updateBoard(board, freeRaw(board, column), column, player);
 
     dropDisc(board, column, player);
 
@@ -213,33 +266,45 @@ const humanMove = (e) => {
 
     togglePlayer();
 
-    // printBoard(board);
-
-    updateBoard(board);
-
     if (!gameOver) {
 
-        setTimeout(aiMove, timeLimit);
-        
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+
+                aiMove(delay);
+            });
+        });        
     }
 }
 
-const updateBoard = (board) => {
+// const updateBoard = (board) => {
 
-    document.querySelectorAll(".cell").forEach((cell, index) => {
+//     document.querySelectorAll(".cell").forEach((cell, index) => {
 
-        let reversedBoard = [...board].reverse();
+//         let reversedBoard = [...board].reverse();
 
-        if ((reversedBoard[Math.floor(index / 7)][index % 7]) == human) cell.classList.add("yellow");
+//         if ((reversedBoard[Math.floor(index / 7)][index % 7]) == human) cell.classList.add("yellow-hole");
         
-        if ((reversedBoard[Math.floor(index / 7)][index % 7]) == ai) cell.classList.add("red");
+//         if ((reversedBoard[Math.floor(index / 7)][index % 7]) == ai) cell.classList.add("red-hole");
 
-    });
+//     });
 
-}
+// }
 
 const resetBoard = () => {
     board = Array.from(Array(numberOfRows), _ => Array(numberOfColumns).fill(0));
+
+
+
+    // board = [[2,1,2,1,1,2,2],
+    //         [1,2,1,2,1,1,1],
+    //         [1,2,1,1,2,2,2,],
+    //         [2,1,2,2,2,1,1],
+    //         [2,2,1,1,1,2,2],
+    //         [1,1,1,2,2,1,0]];
+
+
+    // printBoard(board);
 
 }
 
@@ -484,8 +549,6 @@ const bottomFork = (board, color) =>{
         }
     }
 
-    // if (score != 0) console.log(score);
-
     return 0;
 }
 
@@ -532,7 +595,7 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
 
     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
-    if (depth == 0 || terminalNode(board)) return [null, null,  evaluatePosition(board, player)];
+    if (depth == 0 || terminalNode(board)) return [null, null, evaluatePosition(board, player)];
 
     if (timeOut(startTime)) return [null, null, null];
 
@@ -586,76 +649,76 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
 }
 
 
-function minimax0(board, depth, alpha, beta, maximizingPlayer, startTime, initialColumnes) {
+// function minimax0(board, depth, alpha, beta, maximizingPlayer, startTime, initialColumnes) {
 
-    let scores = [];
+//     let scores = [];
 
-    let tempBoard;
-    let bestScore;
-    let validMoves = getValidMoves(board);
+//     let tempBoard;
+//     let bestScore;
+//     let validMoves = getValidMoves(board);
 
-    let opponent = player == ai ? human : ai;
+//     let opponent = player == ai ? human : ai;
 
-    let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
-
-
-    if (win(board, player)) return [null, null, depth + 1];
-
-    if (win(board, opponent)) return [null, null, -(depth + 1)];
-
-    if (depth == 0 || boardFull(board)) return [null, null,  0];
+//     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
 
-    if (timeOut(startTime)) return [null, null, null];
+//     if (win(board, player)) return [null, null, depth + 1];
 
-    if (initialColumnes != null) validMoves = [...new Set([...initialColumnes, ...validMoves])];
+//     if (win(board, opponent)) return [null, null, -(depth + 1)];
 
-    if (maximizingPlayer) {
+//     if (depth == 0 || boardFull(board)) return [null, null,  0];
+
+
+//     if (timeOut(startTime)) return [null, null, null];
+
+//     if (initialColumnes != null) validMoves = [...new Set([...initialColumnes, ...validMoves])];
+
+//     if (maximizingPlayer) {
         
-        bestScore = -Infinity;
+//         bestScore = -Infinity;
         
-        for (let column of validMoves) {
+//         for (let column of validMoves) {
 
-            tempBoard = board.copy();
+//             tempBoard = board.copy();
     
-            dropDisc(tempBoard, column, player);
+//             dropDisc(tempBoard, column, player);
     
-            [_, _, score] = minimax0(tempBoard, depth - 1, alpha, beta, false, startTime, null);
+//             [_, _, score] = minimax0(tempBoard, depth - 1, alpha, beta, false, startTime, null);
 
-            if (initialColumnes != null) scores[column] = score;
+//             if (initialColumnes != null) scores[column] = score;
     
-            if (score > bestScore) [bestScore, bestColumn] = [score, column];
+//             if (score > bestScore) [bestScore, bestColumn] = [score, column];
 
-            alpha = Math.max(alpha, score);
+//             alpha = Math.max(alpha, score);
 
-            if (alpha >= beta) break;
-        }
+//             if (alpha >= beta) break;
+//         }
 
-        return [scores, bestColumn, bestScore];
+//         return [scores, bestColumn, bestScore];
 
-    } else {
+//     } else {
 
-        bestScore = Infinity;
+//         bestScore = Infinity;
         
-        for (let column of validMoves) {
+//         for (let column of validMoves) {
 
-            tempBoard = board.copy();
+//             tempBoard = board.copy();
     
-            dropDisc(tempBoard, column, opponent);
+//             dropDisc(tempBoard, column, opponent);
     
-            [_, _, score] = minimax0(tempBoard, depth - 1, alpha, beta, true, startTime, null);
+//             [_, _, score] = minimax0(tempBoard, depth - 1, alpha, beta, true, startTime, null);
     
-            if (score < bestScore) [bestScore, bestColumn] = [score, column];
+//             if (score < bestScore) [bestScore, bestColumn] = [score, column];
 
-            beta = Math.min(beta, score);
+//             beta = Math.min(beta, score);
 
-            if (beta <= alpha) break;
-        }
+//             if (beta <= alpha) break;
+//         }
 
-        return [scores, bestColumn, bestScore];
+//         return [scores, bestColumn, bestScore];
 
-    }
-}
+//     }
+// }
 
 
 //     // if (win(board, player)) return [null, null, 100 * (freeCells(board) + 1)];
@@ -766,23 +829,182 @@ const evristik = (board, color, validMoves) => {
 
 }
 
+const setTransitionDisc = () => {
+    for (disc of document.querySelectorAll('.disc')){
+        disc.addEventListener('transitionend', stopMoving);
+    }
+}
+
+const stopMoving = (e) => {
+
+    // console.log("stopmoving");
+
+    // if (player == human) {
+    //     enableTouch();
+    // } else {
+    //     // aiMove();
+    // }
+
+    if (e.currentTarget.classList.contains("red")) enableTouch();
+
+    // if (e.currentTarget.classList.contains("yellow")) {
+        
+    //     moveDone = true;
+    //     // startTime = new Date();
+
+    //     console.log("yellow stop")
+
+
+    // }
+
+
+    // console.log(e.currentTarget);
+
+
+}
+
 const randomFirst = () => {
 
     player = (Math.random() < 0.5) ? human : ai;
 
     // moovingInterval = setInterval(aiMove, 600); //
 
-    if (player == ai) aiMove();
+    if (player == ai) {
+        aiMove();
+    } else {
+        enableTouch();
+    }
 
 }
 
+// const updateBoard = (board, row = 1, column = 3, color = 2) => {
+
+//     const cell = document.querySelector(`#cell${column + 1}`);
+
+//     const disc = document.querySelector(`#disc${numberOfRows * numberOfColumns - freeCells(board) + 1}`);
+
+//     const rectCell = cell.getBoundingClientRect();
+
+//     const rectDisc = disc.getBoundingClientRect();
+
+//     const targetCell = document.querySelector(`#cell${7 * (5 - row) + (column + 1)}`);
+
+//     const rectTargetCell = targetCell.getBoundingClientRect();
+
+
+//     disc.style.left = rectCell.left + ((rectCell.width - rectDisc.width) / 2) + "px";
+
+//     disc.style.top = rectCell.top + ((rectCell.height - rectDisc.height) / 2) - rectCell.height * 1.5 + "px";
+
+   
+//     if (color == 1) disc.classList.add("yellow");
+
+//     if (color == 2) disc.classList.add("red");
+
+
+//     disc.style.opacity = 1;
+
+//     disc.style.transition = `transform ${0.6 / 6 * (6 - row)}s ease-in`;
+
+
+
+//     let distance = rectTargetCell.top + (rectTargetCell.height - rectDisc.height) / 2  -  parseFloat(disc.style.top) + "px";
+
+//     disc.style.transform = `translateY(${distance})`;
+
+
+
+//     console.log(distance);
+
+    
+
+//     console.log(rectCell.width, rectDisc.width, rectCell.left, rectCell.top);
+
+//     console.log(disc.style.left, disc.style.top);
+
+
+
+// }
+
+
+const updateBoard = (board, row = 1, column = 3, color = 2) => {
+
+    const topCell = document.querySelector(`#cell${column + 1}`);
+
+    const disc = document.querySelector(`#disc${numberOfRows * numberOfColumns - freeCells(board) + 1}`);
+
+    const targetCell = document.querySelector(`#cell${7 * ((numberOfRows - 1) - row) + (column + 1)}`);
+
+
+    // const topCell = document.querySelector(`#cell4`);
+
+    // const disc = document.querySelector(`#disc1`);
+
+    // const targetCell = document.querySelector(`#cell4`);
+
+
+
+    disc.style.left = topCell.offsetLeft + (topCell.offsetWidth - disc.offsetWidth) / 2 + "px";
+
+    disc.style.top = topCell.offsetTop + (topCell.offsetHeight - disc.offsetHeight) / 2 - topCell.offsetHeight * 1.5 + "px";
+
+   
+    if (color == 1) disc.classList.add("yellow");
+
+    if (color == 2) disc.classList.add("red");
+
+
+    disc.style.opacity = 1;
+
+    // disc.style.transition = `transform ${0.6 / 6 * (6 - row)}s cubic-bezier(0.33, 0, 0.66, 0.33)`;
+
+
+    disc.style.transition = `transform ${[...durations].reverse()[row]}s cubic-bezier(0.33, 0, 0.66, 0.33)`;
+
+
+
+    let distance = targetCell.offsetTop + (targetCell.offsetHeight - disc.offsetHeight) / 2  -  parseFloat(disc.offsetTop) + "px";
+
+    disc.style.transform = `translateY(${distance})`;
+
+
+
+    // const disc1 = document.querySelector(`#disc1`);
+
+    // const cell1 = document.querySelector(`#cell39`);
+
+
+    // console.log(disc1.offsetTop);
+    // console.log(disc1.offsetLeft);
+    // console.log(disc1.offsetWidth);
+    // console.log(disc1.offsetHeight);
+
+    // console.log("");
+
+
+    // console.log(cell1.offsetTop);
+    // console.log(cell1.offsetLeft);
+    // console.log(cell1.offsetWidth);
+    // console.log(cell1.offsetHeight);
+
+
+    // console.log("");
+
+}
+
+
+
+
 const init = () => {
 
-    disableTouchMove();
+    // disableTouchMove();
     resetBoard();
-    setEvents();
+    // enableTouch();
+    // setTransitionDisc();
 
     randomFirst();
+
+    // drawDisc();
 
 }
 
