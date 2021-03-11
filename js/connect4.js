@@ -1,10 +1,9 @@
 let board = [];
 let moovingInterval;
-let gameOver;
-let player;
+let gameOver = false;
 let depth = 1;
 
-let moveDone = true;
+// let moveDone = true;
 
 const numberOfRows = 6;
 const numberOfColumns = 7;
@@ -14,6 +13,10 @@ const empty = 0
 const human = 1;
 const ai = 2;
 const durations = [0.15, 0.28, 0.38, 0.46, 0.54, 0.61];
+
+let firstPlayer = player = human;
+
+// let firstMove = human;
 
 
 const boardSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-size'));
@@ -44,6 +47,8 @@ const occupiedCells = (board) => {
 const touchScreen = () => {
     return matchMedia('(hover: none)').matches;
 }
+
+
 
 const enableTouch = () => {
     for (let cell of document.querySelectorAll('.cell')){
@@ -81,9 +86,35 @@ const checkEndGame = (board, color) =>  {
         
         gameOver = true;
 
-        clearInterval(moovingInterval); //
+        // clearInterval(moovingInterval); //
 
     }
+}
+
+const disableBoard = () => {
+
+    // if (player == human) {
+    //     document.querySelector("h1").classList.add("yellow-color");
+
+
+    // } else {
+    //     document.querySelector("h1").classList.add("red-color");
+
+    // }
+
+    let flatBorad = [...board].reverse().flat();
+
+
+    document.querySelectorAll(".cell").forEach((cell, i) =>{
+
+
+        if (flatBorad[i] == 0) cell.classList.add("blue");
+        // if (flatBorad[i] == 1) cell.classList.add("yellow");
+        // if (flatBorad[i] == 2) cell.classList.add("red");
+
+
+
+    });
 }
 
 const timeOut = (startTime) => {
@@ -104,7 +135,7 @@ const dropDisc = (board, column, color) => {
 
 }
 
-const aiMove = async (delay) => {
+const aiMove = async() => {
 
     let initialColumnes = [];
 
@@ -116,12 +147,12 @@ const aiMove = async (delay) => {
 
     let lastScores, lastColumn, lastScore;
 
+    let row;
+
     let startTime = new Date();
 
 
     // let startTime = new Date(Date.now() + delay);
-
-
 
 
 
@@ -131,7 +162,7 @@ const aiMove = async (delay) => {
 
 
 
-    console.log(depth);
+    // console.log(depth);
 
 
     if (freeCells(board) != numberOfColumns * numberOfRows) {
@@ -181,7 +212,7 @@ const aiMove = async (delay) => {
 
     //         [scores, column, score] = negamax(board, 7, -Infinity, Infinity, 1);
 
-    column = 3;
+        column = 3;
 
     }
 
@@ -208,7 +239,7 @@ const aiMove = async (delay) => {
     // }
 
 
-
+    row = freeRaw(board, column);
 
     if (player == ai) {
 
@@ -220,18 +251,35 @@ const aiMove = async (delay) => {
 
     }
 
-    updateBoard(board, freeRaw(board, column), column, player);
 
-    setTimeout(enableTouch, [...durations].reverse()[freeRaw(board, column)] * 1000);
+    // updateBoard(board, freeRaw(board, column), column, player);
 
-    console.log([...durations].reverse()[freeRaw(board, column)] * 1000);
+
+
+    // setTimeout(enableTouch, Math.min([...durations].reverse()[freeRaw(board, column)] * 1000, 300));
+
+    // setTimeout(enableTouch, 150);
+
+
+    // console.log([...durations].reverse()[freeRaw(board, column)] * 1000);
 
     dropDisc(board, column, player);
 
     checkEndGame(board, player);
 
-    togglePlayer();
+    updateBoard(board, row, column, player);
 
+
+    if (gameOver) {
+        disableBoard();
+        setTimeout(enableTouch, 1000);
+
+    } else {
+        setTimeout(enableTouch, Math.min([...durations].reverse()[row] * 1000, 300));
+        togglePlayer();
+
+    }
+   
     // requestAnimationFrame(() => {
     //     requestAnimationFrame(() => {
 
@@ -244,37 +292,68 @@ const aiMove = async (delay) => {
 
 const humanMove = (e) => {
 
+    console.log("human");
+
     let el = e.currentTarget;
 
     let delay;
 
+    let row;
+
     let column = Array.from(el.parentNode.children).indexOf(el) % 7;
 
-    if (gameOver || !validMove(board, column)) return;
 
-    moveDone = false;
+    if (gameOver) {
+        resetGame();
+        return;
+    }
+
+    if (!validMove(board, column)) return;
+
+    // moveDone = false;
 
     disableTouch();
 
-    delay = [...durations].reverse()[freeRaw(board, column)] * 1000;
+    row = freeRaw(board, column);
 
-    updateBoard(board, freeRaw(board, column), column, player);
+    delay = [...durations].reverse()[row * 1000];
 
     dropDisc(board, column, player);
 
     checkEndGame(board, player);
 
-    togglePlayer();
+    updateBoard(board, row, column, player);
 
-    if (!gameOver) {
+    if (gameOver){
+
+        disableBoard();
+
+        setTimeout(enableTouch, 1000);
+
+
+    } else {
+
+        togglePlayer();
 
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
 
                 aiMove(delay);
             });
-        });        
+        });  
     }
+
+    // togglePlayer();
+
+    // if (!gameOver) {
+
+    //     requestAnimationFrame(() => {
+    //         requestAnimationFrame(() => {
+
+    //             aiMove(delay);
+    //         });
+    //     });        
+    // }
 }
 
 // const updateBoard = (board) => {
@@ -829,53 +908,53 @@ const evristik = (board, color, validMoves) => {
 
 }
 
-const setTransitionDisc = () => {
-    for (disc of document.querySelectorAll('.disc')){
-        disc.addEventListener('transitionend', stopMoving);
-    }
-}
+// const setTransitionDisc = () => {
+//     for (disc of document.querySelectorAll('.disc')){
+//         disc.addEventListener('transitionend', stopMoving);
+//     }
+// }
 
-const stopMoving = (e) => {
+// const stopMoving = (e) => {
 
-    // console.log("stopmoving");
+//     // console.log("stopmoving");
 
-    // if (player == human) {
-    //     enableTouch();
-    // } else {
-    //     // aiMove();
-    // }
+//     // if (player == human) {
+//     //     enableTouch();
+//     // } else {
+//     //     // aiMove();
+//     // }
 
-    if (e.currentTarget.classList.contains("red")) enableTouch();
+//     if (e.currentTarget.classList.contains("red")) enableTouch();
 
-    // if (e.currentTarget.classList.contains("yellow")) {
+//     // if (e.currentTarget.classList.contains("yellow")) {
         
-    //     moveDone = true;
-    //     // startTime = new Date();
+//     //     moveDone = true;
+//     //     // startTime = new Date();
 
-    //     console.log("yellow stop")
-
-
-    // }
+//     //     console.log("yellow stop")
 
 
-    // console.log(e.currentTarget);
+//     // }
 
 
-}
+//     // console.log(e.currentTarget);
 
-const randomFirst = () => {
 
-    player = (Math.random() < 0.5) ? human : ai;
+// }
 
-    // moovingInterval = setInterval(aiMove, 600); //
+// const randomFirst = () => {
 
-    if (player == ai) {
-        aiMove();
-    } else {
-        enableTouch();
-    }
+//     player = (Math.random() < 0.5) ? human : ai;
 
-}
+//     // moovingInterval = setInterval(aiMove, 600); //
+
+//     if (player == ai) {
+//         aiMove();
+//     } else {
+//         enableTouch();
+//     }
+
+// }
 
 // const updateBoard = (board, row = 1, column = 3, color = 2) => {
 
@@ -927,11 +1006,13 @@ const randomFirst = () => {
 // }
 
 
-const updateBoard = (board, row = 1, column = 3, color = 2) => {
+const updateBoard = (board, row , column, color) => {
+
+    console.log(board);
 
     const topCell = document.querySelector(`#cell${column + 1}`);
 
-    const disc = document.querySelector(`#disc${numberOfRows * numberOfColumns - freeCells(board) + 1}`);
+    const disc = document.querySelector(`#disc${numberOfRows * numberOfColumns - freeCells(board)}`);
 
     const targetCell = document.querySelector(`#cell${7 * ((numberOfRows - 1) - row) + (column + 1)}`);
 
@@ -992,6 +1073,107 @@ const updateBoard = (board, row = 1, column = 3, color = 2) => {
 
 }
 
+const resetGame = () =>{
+
+    depth = 1;
+
+    gameOver = false;
+
+    firstPlayer = firstPlayer == human ? ai : human;
+
+    player = firstPlayer;
+
+
+
+    disableTouch();
+
+
+
+    document.querySelectorAll(".cell").forEach((cell) =>{
+
+        cell.style.transition = "background-color 0s ease-in-out";
+        
+
+    });
+
+
+
+
+    document.querySelectorAll(".cell").forEach((cell) =>{
+
+            cell.classList.remove("blue");
+
+    });
+
+
+
+    document.querySelectorAll(".disc").forEach((disc) =>{
+
+
+        disc.style.transition = `transform 0.6s cubic-bezier(0.33, 0, 0.66, 0.33)`;
+
+        let board = document.querySelector(".board");
+
+        let offset = board.offsetHeight + (board.offsetHeight / 6 ) * 1.5 + window.innerHeight - board.offsetTop - board.offsetHeight;
+
+        disc.style.transform = `translateY(${offset}px)`;
+
+
+    });
+
+
+    resetBoard();
+
+
+    if (player == ai) {
+    
+            setTimeout(() => {
+
+                document.querySelectorAll(".cell").forEach((cell) =>{
+
+                    cell.style = "";
+            
+                });
+
+                document.querySelectorAll(".disc").forEach((disc) =>{
+
+                    disc.style = "";
+                    disc.classList.remove("red");
+                    disc.classList.remove("yellow");
+            
+                });
+
+                aiMove();
+
+
+
+            }, 1000);
+
+    } else {
+
+        setTimeout(() => {
+
+            document.querySelectorAll(".cell").forEach((cell) =>{
+
+                cell.style = "";
+        
+            });
+
+            document.querySelectorAll(".disc").forEach((disc) =>{
+
+                disc.style = "";
+                disc.classList.remove("red");
+                disc.classList.remove("yellow");
+        
+            });
+
+            enableTouch();
+
+        }, 1000);
+
+    }
+    
+}
 
 
 
@@ -999,12 +1181,18 @@ const init = () => {
 
     // disableTouchMove();
     resetBoard();
-    // enableTouch();
+    enableTouch();
     // setTransitionDisc();
 
-    randomFirst();
+    // randomFirst();
 
     // drawDisc();
+
+
+    
+
+
+    
 
 }
 

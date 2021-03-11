@@ -47,6 +47,9 @@ h1{
     font-size: 20vmin;
     color: var(--blue);
     margin-top: 0px;
+
+    transition: color 1s ease-in-out;  
+
 }
 
 body{
@@ -81,14 +84,14 @@ body{
     position: relative;
     /* background: radial-gradient(transparent var(--hole-size), var(--blue) calc(var(--hole-size) / 2)); */
 
-    /* transition: background 1s ease-out;   */
+    transition: background-color 1s ease-in-out;  
 
     overflow: hidden;
 
 
 }
 
-.cell:after{
+.cell::after{
     content:" ";
     position:absolute;
     left:0; right:0;
@@ -110,6 +113,12 @@ body{
     height:  calc(var(--hole-size) + 2px);
     width:   calc(var(--hole-size) + 2px);
 
+    /* height:  calc(var(--board-size) / 7);
+    width:   calc(var(--board-size) / 7); */
+
+
+
+
     /* background-color: black; */
 
     position: absolute;
@@ -121,27 +130,37 @@ body{
     z-index: -100;
 
 
+
 }
 
 .red{
 
-        background-color: var(--red);
+    background-color: var(--red);
 }
 
 .yellow{
 
     background-color: var(--yellow);
-
 }
 
-.red-hole{
+.blue{
+    background-color: rgba(70, 130, 180, 0.5);
+}
+
+/* .disappear{
+
+    transition: opacity 2s ease-out,  background-color 2s ease-out;
+
+} */
+
+/* .red-hole{
     background: radial-gradient(var(--red) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
 
 }
 
 .yellow-hole{
     background: radial-gradient(var(--yellow) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
-}
+} */
 
 /* @media (orientation: landscape) and (max-height: 460px){ */
 
@@ -186,16 +205,15 @@ body{
     
     }
 
-    
 
-    .red{
+    /* .red{
         background: radial-gradient(var(--red) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
     
     }
     
     .yellow{
         background: radial-gradient(var(--yellow) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
-    }
+    } */
 
 
 }
