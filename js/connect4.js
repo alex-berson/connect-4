@@ -147,6 +147,20 @@ const aiMove = async() => {
 
     let startTime = new Date();
 
+    // MonteCarloSimulation(board, startTime);
+
+    // if (player == ai) {
+
+    //     console.log("%c timeMC: ", 'color: #ff0000', (new Date() - startTime) / 1000); //
+
+    // } else {
+
+    //     console.log("%c timeMC: ", 'color: #ffa500', (new Date() - startTime) / 1000); //
+
+    // }
+
+    // startTime = new Date();
+
 
     // let startTime = new Date(Date.now() + delay);
 
@@ -161,7 +175,10 @@ const aiMove = async() => {
     // console.log(depth);
 
 
-    if (freeCells(board) != numberOfColumns * numberOfRows) {
+    // if (freeCells(board) != numberOfColumns * numberOfRows) {
+
+    if (player == ai) {
+
         
         do{
 
@@ -208,7 +225,10 @@ const aiMove = async() => {
 
     //         [scores, column, score] = negamax(board, 7, -Infinity, Infinity, 1);
 
-        column = 3;
+        column = 3; //
+
+
+        column = monteCarloSimulation(board, startTime);
 
     }
 
@@ -860,6 +880,83 @@ const evristik = (board, color, validMoves) => {
 
 }
 
+const monteCarloSimulation = (board, startTime) => {
+
+    let validMoves;
+
+    let column;
+
+    let bestColumn, bestValue;
+
+    const columnStat = {
+        wins: 0,
+        visits: 0
+    }
+
+    let stats = Array.from({length: 7}, (_, i) => Object.assign({}, columnStat));
+
+    let random;
+
+    let opponent = player == ai ? human : ai;
+
+    let tempBoard;
+
+    do{
+            tempBoard = board.copy();
+
+            color = player;
+
+            firstMove = null;
+
+            do{
+
+                validMoves = getValidMoves(tempBoard);
+        
+                random = Math.floor(Math.random() * validMoves.length);
+        
+                column = validMoves[random];
+ 
+                if (firstMove == null) firstMove = column;
+        
+                dropDisc(tempBoard, column, color);
+        
+                // if (win(tempBoard, player)) {stats[firstMove].wins++; stats[firstMove].visits++; break}
+        
+                // if (win(tempBoard, opponent)) {stats[firstMove].wins--; stats[firstMove].visits++ ; break}
+
+
+                if (win(tempBoard, player)) {stats[firstMove].wins += freeCells(tempBoard); stats[firstMove].visits++; break}
+        
+                if (win(tempBoard, opponent)) {stats[firstMove].wins -= freeCells(tempBoard); stats[firstMove].visits++ ; break}
+        
+                if (boardFull(tempBoard)) {stats[firstMove].visits++ ; break}
+        
+                color = color == ai ? human : ai;
+        
+            } while(true);
+
+    } while (!timeOut(startTime))
+
+    bestValue = -Infinity    
+
+    for (let [i, s] of stats.entries()) {
+
+        // console.log(s.wins / s.visits);
+
+        if (s.visits == 0) continue;
+
+        if (s.wins / s.visits > bestValue) [bestValue, bestColumn] = [s.wins / s.visits, i]
+
+    }
+
+
+    console.log(stats);
+
+    console.log(bestColumn);
+
+    return bestColumn;
+
+}
 
 
 const updateBoard = (board, row , column, color) => {
@@ -1091,11 +1188,11 @@ const randomFirst = () => {
 
     moovingInterval = setInterval(aiMove, 1000); ///
 
-    if (player == ai) {
-        aiMove();
-    } else {
-        enableTouch();
-    }
+    // if (player == ai) {
+    //     aiMove();
+    // } else {
+    //     enableTouch();
+    // }
 
 }
 
@@ -1112,6 +1209,29 @@ const init = () => {
     randomFirst(); ///
 
     // drawDisc();    
+
+    // const object = {
+    //     wins: 0,
+    //     visits: 0
+    // }
+
+    // stats = Array.from({length: 7}, (_, i) => Object.assign({}, object));
+
+
+    // const stats = [{}, {}, {}, {}, {}, {}, {}];
+
+
+
+    // const stats = [object, Object.assign({}, object), object, object, object, object, object]
+
+    // stats[0].wins = 1;
+    // stats[0].visits = 1;
+
+    // stats[1].visits++;
+
+
+
+    // console.log(stats);
 
 }
 
