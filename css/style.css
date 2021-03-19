@@ -12,15 +12,14 @@
 :root {
 
     --board-size: 0.87;
+
     --blue: steelblue;
     --red: #e23838;
     --yellow: #ffb900;
-    /* --hole-size: 5.5vmin; */
 
     --hole-size: calc(var(--board-size) / 7 / 1.15);
 
 
-   
 }
 
 #outer {
@@ -44,7 +43,7 @@
 
 h1{
     text-align: center;
-    font-size: 20vmin;
+    font-size: 20.5vmin;
     color: var(--blue);
     margin-top: 0px;
 
@@ -57,6 +56,12 @@ body{
     margin: 0px;
     background-color: seashell;
 
+    /* position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%); */
+
 }
 
 .board{
@@ -67,7 +72,7 @@ body{
     grid-template-columns: repeat(7, 1fr);
 
     border: 10px solid var(--blue);
-    /* border-bottom: 20px solid var(--blue); */
+    border-bottom: 20px solid var(--blue);
 
     border-radius: 25px;
 
@@ -89,15 +94,22 @@ body{
     margin-left: auto; 
     margin-right: auto; 
 
-    margin-top: calc(var(--board-size) - var(--board-size) / 7 - 0.3vmin);
+    /* margin-top: calc(var(--board-size) - var(--board-size) / 7 - 0.9vmin); */
+
+    margin-top: calc(var(--board-size) - var(--board-size) / 7 + 0.5vmin);
+
 
 
     text-align: center;
     /* align-self: auto; */
     color: seashell;
-    font-size: 2vmin; 
+    font-size: 2.6vmin; 
 
-    /* opacity: 0.7; */
+    /* opacity: 0.5; */
+
+    transition: opacity 1s ease-in-out;  
+
+
 
 }
 
@@ -105,7 +117,7 @@ body{
 
 .cell{
 
-    /* background-color: snow; */
+    /* background-color: blue; */
     position: relative;
     /* background: radial-gradient(transparent var(--hole-size), var(--blue) calc(var(--hole-size) / 2)); */
 
@@ -136,18 +148,13 @@ body{
 
     height:  calc(var(--hole-size) + 2px);
     width:   calc(var(--hole-size) + 2px);
-
-    /* height:  calc(var(--board-size) / 7);
-    width:   calc(var(--board-size) / 7); */
-
-
-
-
+   
     /* background-color: black; */
 
     position: absolute;
     opacity: 0;
-    /* transition: opacity 1s ease-out;   */
+
+    transition: opacity 3s ease-in-out;  
 
     /* transition: transform 0.6s ease-in; */
 
@@ -168,25 +175,9 @@ body{
 }
 
 .blue{
+
     background-color: rgba(70, 130, 180, 0.5);
 }
-
-/* .disappear{
-
-    transition: opacity 2s ease-out,  background-color 2s ease-out;
-
-} */
-
-/* .red-hole{
-    background: radial-gradient(var(--red) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
-
-}
-
-.yellow-hole{
-    background: radial-gradient(var(--yellow) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
-} */
-
-/* @media (orientation: landscape) and (max-height: 460px){ */
 
 @media (orientation: landscape){
 
@@ -214,7 +205,27 @@ body{
 
     .board{
         border: 20px solid var(--blue);
+
         border-radius: 50px;
+
+        border-bottom: 30px solid var(--blue);
+
+        border-bottom: 40px solid var(--blue);
+
+
+    }
+
+    #designed{
+        font-size: 2vmin; 
+        /* margin-top: calc(var(--board-size) - var(--board-size) / 7 - 0.2vmin); */
+
+        /* margin-top: calc(var(--board-size) - var(--board-size) / 7 + 0.5vmin); */
+
+        margin-top: calc(var(--board-size) - var(--board-size) / 7 + 1.2vmin);
+
+
+
+
     }
 
     .cell{
@@ -224,21 +235,23 @@ body{
         position: relative;
         /* background: radial-gradient(transparent var(--hole-size),var(--blue) calc(var(--hole-size) / 2)); */
 
-        overflow:hidden;
+        overflow: hidden;
 
     
     }
 
+}
 
-    /* .red{
-        background: radial-gradient(var(--red) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
-    
+@media (min-width: 1200px), (min-height: 1200px){
+
+    #designed{
+
+        font-size: 2vmin; 
+
+        margin-top: calc(var(--board-size) - var(--board-size) / 7 + 0.5vmin);
+
+
     }
-    
-    .yellow{
-        background: radial-gradient(var(--yellow) var(--hole-size), var(--blue) calc(var(--hole-size) / 2));
-    } */
-
 
 }
 

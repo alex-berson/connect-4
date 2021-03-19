@@ -16,16 +16,22 @@ const durations = [0.15, 0.28, 0.38, 0.46, 0.54, 0.61];
 
 let firstPlayer = player = human;
 
-// let firstMove = human;
+let firstMove = human;
 
 
-const boardSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-size'));
+let boardSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-size'));
 
-if (window.innerHeight > window.innerWidth) {
-    document.documentElement.style.setProperty('--board-size', Math.ceil(window.outerWidth * boardSize / 7) * 7 + 'px');
-} else {
-    document.documentElement.style.setProperty('--board-size', Math.ceil(window.outerHeight * boardSize / 7) * 7 + 'px');
-}
+boardSize = Math.ceil(screen.width * boardSize / 14) * 14;
+
+document.documentElement.style.setProperty('--board-size', boardSize + 'px');
+
+
+let holeSize = Math.ceil(boardSize / 7 / 1.15 / 2) * 2;
+
+document.documentElement.style.setProperty('--hole-size', holeSize + 'px');
+
+
+
 
 const disableTouchMove = () => {
 
@@ -86,35 +92,25 @@ const checkEndGame = (board, color) =>  {
         
         gameOver = true;
 
-        // clearInterval(moovingInterval); //
+        clearInterval(moovingInterval); ///
 
     }
 }
 
 const disableBoard = () => {
 
-    // if (player == human) {
-    //     document.querySelector("h1").classList.add("yellow-color");
-
-
-    // } else {
-    //     document.querySelector("h1").classList.add("red-color");
-
-    // }
-
     let flatBorad = [...board].reverse().flat();
 
 
-    document.querySelectorAll(".cell").forEach((cell, i) =>{
+    document.querySelector("#designed").style.opacity = 0.5;
 
+
+    document.querySelectorAll(".cell").forEach((cell, i) => {
 
         if (flatBorad[i] == 0) cell.classList.add("blue");
-        // if (flatBorad[i] == 1) cell.classList.add("yellow");
-        // if (flatBorad[i] == 2) cell.classList.add("red");
-
-
 
     });
+
 }
 
 const timeOut = (startTime) => {
@@ -128,7 +124,7 @@ const dropDisc = (board, column, color) => {
         board[freeRaw(board, column)][column] = color;
 
     } catch(e) {
-        console.log("error");
+        // console.log("error");
 
         console.log(column);
     }
@@ -169,7 +165,7 @@ const aiMove = async() => {
         
         do{
 
-            [scores, column, score] = minimax(board, depth, -Infinity, Infinity, true, startTime, initialColumnes);
+            [column, score] = minimax(board, depth, -Infinity, Infinity, true, startTime, initialColumnes);
 
             // scores = scores.filter(item => item);
 
@@ -177,7 +173,7 @@ const aiMove = async() => {
 
             if (timeOut(startTime)) {
 
-                [scores, column, score] = [lastScores, lastColumn, lastScore]
+                [column, score] = [lastColumn, lastScore]
 
                 depth--;
 
@@ -185,7 +181,7 @@ const aiMove = async() => {
 
             } else {
 
-                [lastScores, lastColumn, lastScore] = [scores, column, score]
+                [lastColumn, lastScore] = [column, score]
 
                 // initialColumnes = [...new Set([...[column], ...initialColumnes])];
 
@@ -640,6 +636,36 @@ const evaluatePosition = (board, color) => {
     return score;
 }
 
+const evaluationWithMatrix = (board, color) => {
+
+    let score = 138;
+
+    let reversedColor = color == ai ? human : ai;
+
+    const evaluationMatrix = [
+        [3, 4, 5, 7, 5, 4, 3], 
+        [4, 6, 8, 10, 8, 6, 4],
+        [5, 8, 11, 13, 11, 8, 5], 
+        [5, 8, 11, 13, 11, 8, 5],
+        [4, 6, 8, 10, 8, 6, 4],
+        [3, 4, 5, 7, 5, 4, 3]
+    ]
+
+    for (let r = 0; r < numberOfRows; r++) {
+
+        for (let c = 0; c < numberOfColumns; c++) {
+
+            if (board[r][c] == color) score += evaluationMatrix[r][c];
+
+            if (board[r][c] == reversedColor) score -= evaluationMatrix[r][c];
+        }
+    }
+
+
+    return score;
+
+}
+
 const getValidMoves = (board) => {
 
     let validMoves = [];
@@ -674,9 +700,25 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
 
     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
-    if (depth == 0 || terminalNode(board)) return [null, null, evaluatePosition(board, player)];
+    if (player == ai) {
 
-    if (timeOut(startTime)) return [null, null, null];
+        if (depth == 0 || terminalNode(board)) return [null, evaluatePosition(board, player)];
+
+    } else {
+
+        if (win(board, player)) return [null, 100 * (freeCells(board) + 1)];
+
+        if (win(board, opponent)) return [null, -100 * (freeCells(board) + 1)];
+
+        if (boardFull(board)) return [null, 0];
+
+        if (depth == 0) return [null, evaluationWithMatrix(board, player)];
+
+    }
+
+
+
+    if (timeOut(startTime)) return [null, null];
 
     if (initialColumnes != null) validMoves = [...new Set([...initialColumnes, ...validMoves])];
 
@@ -690,7 +732,7 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
     
             dropDisc(tempBoard, column, player);
     
-            [_, _, score] = minimax(tempBoard, depth - 1, alpha, beta, false, startTime, null);
+            [_, score] = minimax(tempBoard, depth - 1, alpha, beta, false, startTime, null);
 
             if (initialColumnes != null) scores[column] = score;
     
@@ -701,7 +743,7 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
             if (alpha >= beta) break;
         }
 
-        return [scores, bestColumn, bestScore];
+        return [bestColumn, bestScore];
 
     } else {
 
@@ -713,7 +755,7 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
     
             dropDisc(tempBoard, column, opponent);
     
-            [_, _, score] = minimax(tempBoard, depth - 1, alpha, beta, true, startTime, null);
+            [_, score] = minimax(tempBoard, depth - 1, alpha, beta, true, startTime, null);
     
             if (score < bestScore) [bestScore, bestColumn] = [score, column];
 
@@ -722,100 +764,10 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
             if (beta <= alpha) break;
         }
 
-        return [scores, bestColumn, bestScore];
+        return [bestColumn, bestScore];
 
     }
 }
-
-
-// function minimax0(board, depth, alpha, beta, maximizingPlayer, startTime, initialColumnes) {
-
-//     let scores = [];
-
-//     let tempBoard;
-//     let bestScore;
-//     let validMoves = getValidMoves(board);
-
-//     let opponent = player == ai ? human : ai;
-
-//     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
-
-
-//     if (win(board, player)) return [null, null, depth + 1];
-
-//     if (win(board, opponent)) return [null, null, -(depth + 1)];
-
-//     if (depth == 0 || boardFull(board)) return [null, null,  0];
-
-
-//     if (timeOut(startTime)) return [null, null, null];
-
-//     if (initialColumnes != null) validMoves = [...new Set([...initialColumnes, ...validMoves])];
-
-//     if (maximizingPlayer) {
-        
-//         bestScore = -Infinity;
-        
-//         for (let column of validMoves) {
-
-//             tempBoard = board.copy();
-    
-//             dropDisc(tempBoard, column, player);
-    
-//             [_, _, score] = minimax0(tempBoard, depth - 1, alpha, beta, false, startTime, null);
-
-//             if (initialColumnes != null) scores[column] = score;
-    
-//             if (score > bestScore) [bestScore, bestColumn] = [score, column];
-
-//             alpha = Math.max(alpha, score);
-
-//             if (alpha >= beta) break;
-//         }
-
-//         return [scores, bestColumn, bestScore];
-
-//     } else {
-
-//         bestScore = Infinity;
-        
-//         for (let column of validMoves) {
-
-//             tempBoard = board.copy();
-    
-//             dropDisc(tempBoard, column, opponent);
-    
-//             [_, _, score] = minimax0(tempBoard, depth - 1, alpha, beta, true, startTime, null);
-    
-//             if (score < bestScore) [bestScore, bestColumn] = [score, column];
-
-//             beta = Math.min(beta, score);
-
-//             if (beta <= alpha) break;
-//         }
-
-//         return [scores, bestColumn, bestScore];
-
-//     }
-// }
-
-
-//     // if (win(board, player)) return [null, null, 100 * (freeCells(board) + 1)];
-
-//     // if (win(board, opponent)) return [null, null, -100 * (freeCells(board) + 1)];
-
-//     // if (boardFull(board)) return [null, 0];
-
-//     if (win(board, player)) return [null, null, depth + 1];
-
-//     if (win(board, opponent)) return [null, null, -(depth + 1)];
-
-//     if (depth == 0 || boardFull(board)) return [null, null,  0];
-
-
-//     // if (depth == 0 || terminalNode(board)) return [null, null,  evaluatePosition(board, player)];
-
-//     // if (depth == 0 || terminalNode(board)) return [null, null,  0];
 
 
 
@@ -908,107 +860,11 @@ const evristik = (board, color, validMoves) => {
 
 }
 
-// const setTransitionDisc = () => {
-//     for (disc of document.querySelectorAll('.disc')){
-//         disc.addEventListener('transitionend', stopMoving);
-//     }
-// }
-
-// const stopMoving = (e) => {
-
-//     // console.log("stopmoving");
-
-//     // if (player == human) {
-//     //     enableTouch();
-//     // } else {
-//     //     // aiMove();
-//     // }
-
-//     if (e.currentTarget.classList.contains("red")) enableTouch();
-
-//     // if (e.currentTarget.classList.contains("yellow")) {
-        
-//     //     moveDone = true;
-//     //     // startTime = new Date();
-
-//     //     console.log("yellow stop")
-
-
-//     // }
-
-
-//     // console.log(e.currentTarget);
-
-
-// }
-
-// const randomFirst = () => {
-
-//     player = (Math.random() < 0.5) ? human : ai;
-
-//     // moovingInterval = setInterval(aiMove, 600); //
-
-//     if (player == ai) {
-//         aiMove();
-//     } else {
-//         enableTouch();
-//     }
-
-// }
-
-// const updateBoard = (board, row = 1, column = 3, color = 2) => {
-
-//     const cell = document.querySelector(`#cell${column + 1}`);
-
-//     const disc = document.querySelector(`#disc${numberOfRows * numberOfColumns - freeCells(board) + 1}`);
-
-//     const rectCell = cell.getBoundingClientRect();
-
-//     const rectDisc = disc.getBoundingClientRect();
-
-//     const targetCell = document.querySelector(`#cell${7 * (5 - row) + (column + 1)}`);
-
-//     const rectTargetCell = targetCell.getBoundingClientRect();
-
-
-//     disc.style.left = rectCell.left + ((rectCell.width - rectDisc.width) / 2) + "px";
-
-//     disc.style.top = rectCell.top + ((rectCell.height - rectDisc.height) / 2) - rectCell.height * 1.5 + "px";
-
-   
-//     if (color == 1) disc.classList.add("yellow");
-
-//     if (color == 2) disc.classList.add("red");
-
-
-//     disc.style.opacity = 1;
-
-//     disc.style.transition = `transform ${0.6 / 6 * (6 - row)}s ease-in`;
-
-
-
-//     let distance = rectTargetCell.top + (rectTargetCell.height - rectDisc.height) / 2  -  parseFloat(disc.style.top) + "px";
-
-//     disc.style.transform = `translateY(${distance})`;
-
-
-
-//     console.log(distance);
-
-    
-
-//     console.log(rectCell.width, rectDisc.width, rectCell.left, rectCell.top);
-
-//     console.log(disc.style.left, disc.style.top);
-
-
-
-// }
 
 
 const updateBoard = (board, row , column, color) => {
 
-    console.log(board);
+    // console.log(board);
 
     const topCell = document.querySelector(`#cell${column + 1}`);
 
@@ -1017,17 +873,38 @@ const updateBoard = (board, row , column, color) => {
     const targetCell = document.querySelector(`#cell${7 * ((numberOfRows - 1) - row) + (column + 1)}`);
 
 
+    // const rectDisc = document.querySelector(`#disc1`).getBoundingClientRect();
+    // const rectCell = document.querySelector(`#cell39`).getBoundingClientRect();
+
+    // console.log(rectDisc);
+
+    // console.log(rectCell);
+
+
+
+
     // const topCell = document.querySelector(`#cell4`);
 
     // const disc = document.querySelector(`#disc1`);
 
     // const targetCell = document.querySelector(`#cell4`);
 
+    // console.log(topCell.offsetHeight);
+
+    // console.log(disc.offsetHeight);
+
 
 
     disc.style.left = topCell.offsetLeft + (topCell.offsetWidth - disc.offsetWidth) / 2 + "px";
 
     disc.style.top = topCell.offsetTop + (topCell.offsetHeight - disc.offsetHeight) / 2 - topCell.offsetHeight * 1.5 + "px";
+
+
+
+    // console.log("disc.style.top", disc.style.top);
+
+    // console.log("targercell.top", targetCell.offsetTop);
+
 
    
     if (color == 1) disc.classList.add("yellow");
@@ -1046,7 +923,30 @@ const updateBoard = (board, row , column, color) => {
 
     let distance = targetCell.offsetTop + (targetCell.offsetHeight - disc.offsetHeight) / 2  -  parseFloat(disc.offsetTop) + "px";
 
+
+    let styles = window.getComputedStyle(targetCell, '::after')
+    // let content = styles['left'];
+
+    // console.log("target ", styles.top);
+
+
+    // console.log("distance ", distance);
+
+
+
+
+
+    // console.log("disc.style.top", parseFloat(disc.offsetTop));
+
+
     disc.style.transform = `translateY(${distance})`;
+
+
+    // disc.style.transform = `translateY(${distance}) rotateY(30deg)`;
+
+
+    // disc.style.transform = `rotateY(30deg)`;
+
 
 
 
@@ -1084,9 +984,12 @@ const resetGame = () =>{
     player = firstPlayer;
 
 
-
     disableTouch();
 
+
+    document.querySelector("#designed").style.transition = "background-color 0s ease-in-out";
+
+    document.querySelector("#designed").style.opacity = 1;
 
 
     document.querySelectorAll(".cell").forEach((cell) =>{
@@ -1097,8 +1000,6 @@ const resetGame = () =>{
     });
 
 
-
-
     document.querySelectorAll(".cell").forEach((cell) =>{
 
             cell.classList.remove("blue");
@@ -1106,9 +1007,15 @@ const resetGame = () =>{
     });
 
 
-
     document.querySelectorAll(".disc").forEach((disc) =>{
 
+
+       
+    
+        // disc.style.transition = "opacity 0s";  
+    
+        // disc.style.opacity = 1;
+    
 
         disc.style.transition = `transform 0.6s cubic-bezier(0.33, 0, 0.66, 0.33)`;
 
@@ -1116,7 +1023,7 @@ const resetGame = () =>{
 
         let offset = board.offsetHeight + (board.offsetHeight / 6 ) * 1.5 + window.innerHeight - board.offsetTop - board.offsetHeight;
 
-        disc.style.transform = `translateY(${offset}px)`;
+        disc.style.transform += `translateY(${offset}px)`;
 
 
     });
@@ -1128,6 +1035,9 @@ const resetGame = () =>{
     if (player == ai) {
     
             setTimeout(() => {
+
+                document.querySelector("#designed").style = "";
+        
 
                 document.querySelectorAll(".cell").forEach((cell) =>{
 
@@ -1145,13 +1055,13 @@ const resetGame = () =>{
 
                 aiMove();
 
-
-
             }, 1000);
 
     } else {
 
         setTimeout(() => {
+
+            document.querySelector("#designed").style = "";
 
             document.querySelectorAll(".cell").forEach((cell) =>{
 
@@ -1175,24 +1085,33 @@ const resetGame = () =>{
     
 }
 
+const randomFirst = () => {
+
+    player = (Math.random() < 0.5) ? human : ai;
+
+    moovingInterval = setInterval(aiMove, 1000); ///
+
+    if (player == ai) {
+        aiMove();
+    } else {
+        enableTouch();
+    }
+
+}
 
 
 const init = () => {
 
-    // disableTouchMove();
+    disableTouchMove();
     resetBoard();
     enableTouch();
+
+    // setBoardSize();
     // setTransitionDisc();
 
-    // randomFirst();
+    randomFirst(); ///
 
-    // drawDisc();
-
-
-    
-
-
-    
+    // drawDisc();    
 
 }
 
