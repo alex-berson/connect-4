@@ -117,8 +117,13 @@ const aiMove = async() => {
     dropDisc(board, row, column, player);
 
     if (gameOver) {
-        disableBoard();
-        setTimeout(enableTouch, 1000);
+        showWinner(row);
+        setTimeout(enableTouch, [...durations].reverse()[row] * 1000 + 1000 + !draw(win(board, player)) * 1000);
+
+        console.log("pause: ", [...durations].reverse()[row] * 1000 + 1000 + !draw(win(board, player)) * 1000);
+
+        console.log("win: ", win(board, player));
+
 
     } else {
         setTimeout(enableTouch, Math.min([...durations].reverse()[row] * 1000, 300));
@@ -164,8 +169,13 @@ const humanMove = (e) => {
     dropDisc(board, row, column, player);
 
     if (gameOver){
-        disableBoard();
-        setTimeout(enableTouch, 1000);
+        showWinner(row);
+        setTimeout(enableTouch, [...durations].reverse()[row] * 1000 + 1000 + !draw(win(board, player)) * 1000);
+
+        console.log("pause: ", [...durations].reverse()[row] * 1000 + 1000 + !draw(win(board, player)) * 1000);
+
+        console.log("win: ", win(board, player));
+
     } else {
         togglePlayer();
         requestAnimationFrame(() => {

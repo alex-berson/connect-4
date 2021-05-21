@@ -18,7 +18,10 @@
 
     --blue: steelblue;
     --red: #e23838;
-    --yellow: #ffb900;
+    /* --yellow: #ffb900; */
+
+    /* --red: #eb001b; */
+    --yellow: #f79e1b;
 
     /* --hole-size: calc((var(--board-size) - 20px)/ 7 / 1.15); */
 

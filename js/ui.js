@@ -30,16 +30,95 @@ const disableTouch = () => {
     }
 }
 
-const disableBoard = () => {
+const showWinner = (row) => {
 
-    let flatBorad = [...board].reverse().flat();
+    let flatBoard = [...board].reverse().flat();
 
-    document.querySelector("#designed").style.opacity = 0.5;
-    document.querySelectorAll(".cell").forEach((cell, i) => {
-        if (flatBorad[i] == 0) cell.classList.add("blue");
-    });
+    let cells = win(board, player);
+
+
+    // document.querySelector("#designed").style.opacity = 0.5;
+    // document.querySelectorAll(".cell").forEach((cell, i) => {
+    //     // if (flatBoard[i] == 0) cell.classList.add("blue");
+
+    //     // cell.classList.add("blue");
+
+    //     if (!cells.includes(i+1)) cell.classList.add("blue");
+
+    // });
+
+    console.log(win(board, player));
+
+
+    if (!win(board, player)) {
+        document.querySelector("#designed").style.opacity = 0.5;
+
+        console.log("draw");
+        return;
+    }
+
+    setTimeout(() => {
+
+        document.querySelectorAll('.disc').forEach((disc) => {
+
+            // console.log("disc");
+
+            if (cells.every(cell => !disc.classList.contains(cell))) {
+                // disc.style.opacity = 0.2;
+
+                // cell.classList.add("blue");
+
+                // disc.style.transition = "visibility 1s";  
+
+                // disc.style.visibility = "hidden";
+
+
+                disc.style.transition = "opacity 1s";  
+
+                disc.style.opacity = 0.2;
+
+            }
+        });
+
+        console.log("duration", [...durations].reverse()[row] * 1000);
+
+    }, [...durations].reverse()[row] * 1000);
+
+    setTimeout(() => {
+
+        document.querySelector("#designed").style.opacity = 0.5;
+
+        document.querySelectorAll(".cell").forEach((cell, i) => {
+
+        if (flatBoard[i] == 0) cell.classList.add("blue");
+
+
+            // if (flatBoard[i] != 0) cell.classList.remove("blue");
+    
+            // cell.classList.add("blue");
+    
+            // if (!cells.includes(i+1)) cell.classList.add("blue");
+    
+        });
+
+        document.querySelectorAll('.disc').forEach((disc) => {
+
+            // console.log("disc");
+            // disc.style.opacity = 1;
+
+            // disc.style = "";
+
+            // disc.style.transition = "visibility 0s";  
+
+
+            // disc.style.visibility = "visible";
+
+            disc.style.opacity = 1;
+
+        })
+    }, [...durations].reverse()[row] * 1000 + 1000);
+    
 }
-
 
 const printBoard = (board) => {
     console.log([...board].reverse());
@@ -51,7 +130,10 @@ const dropDisc = (board, row , column, color) => {
 
     const topCell = document.querySelector(`#cell${column + 1}`);
     const disc = document.querySelector(`#disc${numberOfRows * numberOfColumns - freeCells(board)}`);
-    const targetCell = document.querySelector(`#cell${7 * ((numberOfRows - 1) - row) + (column + 1)}`);
+    const targetCell = document.querySelector(`#cell${cell(row, column)}`);
+
+    disc.classList.add(`${cell(row, column)}`);
+
 
 
     // const rectDisc = document.querySelector(`#disc1`).getBoundingClientRect();
@@ -70,7 +152,6 @@ const dropDisc = (board, row , column, color) => {
     // console.log(topCell.offsetHeight);
 
     // console.log(disc.offsetHeight);
-
 
 
     disc.style.left = topCell.offsetLeft + (topCell.offsetWidth - disc.offsetWidth) / 2 + "px";
@@ -169,7 +250,15 @@ const clearDiscs = () => {
     });
     document.querySelectorAll(".disc").forEach((disc) =>{
         disc.style = "";
+        // disc.style.className = "";
+        // disc.classList.add("disc");
+
         disc.classList.remove("red");
         disc.classList.remove("yellow");
+
+        for (let i = 1; i <= numberOfRows * numberOfColumns; i++) {
+            disc.classList.remove(`${i}`);
+
+        }
     });
 }

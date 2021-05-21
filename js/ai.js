@@ -8,12 +8,12 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
     if (player == ai) {
-        if (depth == 0 || terminalNode(board)) return [null, evaluatePosition(board, player)];
+        if (depth == 0 || terminalNode(board)) return [null, evaluation(board, player)];
     } else {
         if (win(board, player)) return [null, 100 * (freeCells(board) + 1)];
         if (win(board, opponent)) return [null, -100 * (freeCells(board) + 1)];
         if (boardFull(board)) return [null, 0];
-        if (depth == 0) return [null, evaluationWithMatrix(board, player)];
+        if (depth == 0) return [null, evaluation(board, player)];
     }
 
     if (timeOut(startTime)) return [null, null];
@@ -71,7 +71,7 @@ function negamax(board, depth, alpha, beta, color) {
     let currentPlayer = color == 1 ? player : opponent;
     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
-    if (depth == 0 || terminalNode(board)) return [null, null,  color * evaluatePosition(board, player)];
+    if (depth == 0 || terminalNode(board)) return [null, null,  color * evaluation(board, player)];
  
     bestScore = -Infinity;
     
@@ -93,29 +93,6 @@ function negamax(board, depth, alpha, beta, color) {
     }
 
     return [scores, bestColumn, bestScore];
-}
-
-const matrix = (board, color) => {
-
-    let score = 138;
-    let reversedColor = color == ai ? human : ai;
-
-    const scoresMatrix = [
-        [3, 4, 5, 7, 5, 4, 3], 
-        [4, 6, 8, 10, 8, 6, 4],
-        [5, 8, 11, 13, 11, 8, 5], 
-        [5, 8, 11, 13, 11, 8, 5],
-        [4, 6, 8, 10, 8, 6, 4],
-        [3, 4, 5, 7, 5, 4, 3]
-    ]
-
-    for (let r = 0; r < numberOfRows; r++) {
-        for (let c = 0; c < numberOfColumns; c++) {
-            if (board[r][c] == color) score += scoresMatrix[r][c];
-            if (board[r][c] == reversedColor) score -= scoresMatrix[r][c];
-        }
-    }
-    return score;
 }
 
 const monteCarlo = (board, startTime) => {

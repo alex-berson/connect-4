@@ -7,7 +7,7 @@ let depth = 1;
 
 const numberOfRows = 6;
 const numberOfColumns = 7;
-const timeLimit = 500;
+const timeLimit = 600;
 const depthLimit = 7;  //
 const empty = 0
 const human = 1;

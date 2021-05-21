@@ -1,10 +1,4 @@
-const freeCells = (board) => {
-    return board.flat().count(empty);
-}
-
-const occupiedCells = (board) => {
-    return numberOfRows * numberOfColumns - board.flat().count(empty);
-}
+const freeCells = (board) => board.flat().count(empty);
 
 const boardFull = (board) => {
     for (let c = 0; c < numberOfColumns; c++) {
@@ -24,19 +18,12 @@ const checkEndGame = (board, color) =>  {
     }
 }
 
-const timeOut = (startTime) => {
-    return new Date() - startTime >= timeLimit;
-} 
+const draw = (winner) => gameOver && winner == undefined;
 
-const placeDisc = (board, column, color) => {
-    try {
-        board[freeRaw(board, column)][column] = color;
-    } catch(e) {
-        // console.log("error");
-        console.log(column);
-    }
-}
+const timeOut = (startTime) => new Date() - startTime >= timeLimit;
 
+const placeDisc = (board, column, color) => board[freeRaw(board, column)][column] = color;
+    
 const resetBoard = () => {
     board = Array.from(Array(numberOfRows), _ => Array(numberOfColumns).fill(0));
 
@@ -52,9 +39,7 @@ const resetBoard = () => {
 
 }
 
-const validMove = (board, column) => {
-	return board[numberOfRows - 1][column] == 0;
-}
+const validMove = (board, column) => board[numberOfRows - 1][column] == 0;
 
 const freeRaw = (board, column) => {
     for (let r = 0; r < numberOfRows; r++)  {
@@ -75,6 +60,6 @@ const getValidMoves = (board) => {
     return validMoves;
 }
 
-const terminalNode = (board) => {
-	return win(board, human) || win(board, ai) || boardFull(board);
-}
+const terminalNode = (board) => win(board, human) || win(board, ai) || boardFull(board);
+
+const cell = (r, c) => 7 * ((numberOfRows - 1) - r) + (c + 1);
