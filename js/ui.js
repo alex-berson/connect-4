@@ -3,11 +3,18 @@ const disableTouchMove = () => {
     const preventDefault = (e) => e.preventDefault();
 
     document.body.addEventListener('touchmove', preventDefault, { passive: false });
-
 }
 
 const touchScreen = () => {
     return matchMedia('(hover: none)').matches;
+}
+
+const phoneApp = () => {
+    if ((document.URL.indexOf('http://') == -1 && document.URL.indexOf('https://') == -1) && 
+        (screen.width < 460 || screen.height < 460)) {
+            return true;
+    } 
+    return false;
 }
 
 const enableTouch = () => {
@@ -30,30 +37,89 @@ const disableTouch = () => {
     }
 }
 
+const setBoardSize = () => {
+
+    if (screen.height > screen.width) {
+         var boardSize = Math.ceil(screen.width * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-size')) / 7) * 7;
+    } else {
+         var boardSize = Math.ceil(window.innerHeight * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-size')) / 7) * 7;
+    }
+
+    let holeSize = Math.ceil(boardSize / 7 / 1.15 / 2) * 2;
+
+    document.documentElement.style.setProperty('--board-size', boardSize + 'px');
+    document.documentElement.style.setProperty('--hole-size', holeSize + 'px');
+}
+
+const setFontSize = () => {
+
+    let h1 = document.querySelector('h1');
+    let board = document.querySelector('.board');
+
+    // let designed = document.querySelector('#designed');
+
+    // let fontSize = parseFloat(getComputedStyle(h1).getPropertyValue("font-size"));
+
+    let fontSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--font-size'));
+    
+    let borderSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--border-size'));
+
+
+    // alert(fontSize);
+
+
+    // alert(h1.offsetWidth);
+    // console.log("board", board.offsetWidth);
+
+
+    // console.log(window.screen.width);
+
+    // alert(board.offsetWidth / window.screen.width);
+
+    // console.log(fontSize);
+
+    // console.log(parseFloat(getComputedStyle(h1).getPropertyValue("width")));
+    // console.log(parseFloat(getComputedStyle(board).getPropertyValue("width")) + borderSize * 2);
+
+    // alert(parseFloat(getComputedStyle(designed).getPropertyValue("height")));
+
+
+    // alert(parseFloat(getComputedStyle(h1).getPropertyValue("width")));
+    // alert(parseFloat(getComputedStyle(board).getPropertyValue("width")) + borderSize * 2);
+
+    while (parseInt(getComputedStyle(h1).getPropertyValue("width")) <= parseInt(getComputedStyle(board).getPropertyValue("width")) + borderSize * 2) {
+
+        fontSize += 0.2;
+        // h1.style.fontSize = fontSize + "vmin";
+
+        document.documentElement.style.setProperty('--font-size', fontSize + 'vmin');
+
+
+        // console.log(fontSize);
+    }
+
+    // fontSize = fontSize + 0.2;
+
+    // if (borderSize == 20) fontSize = fontSize + 0.3;
+
+
+    // document.documentElement.style.setProperty('--font-size', fontSize + 'vmin');
+
+    // alert(parseFloat(getComputedStyle(h1).getPropertyValue("width")));
+    // alert(parseFloat(getComputedStyle(board).getPropertyValue("width")) + borderSize * 2);
+}
+
+const showBoard = () => {
+    document.querySelector("body").style.opacity = 1;
+}
+
 const showWinner = (row) => {
 
     let flatBoard = [...board].reverse().flat();
-
     let cells = win(board, player);
-
-
-    // document.querySelector("#designed").style.opacity = 0.5;
-    // document.querySelectorAll(".cell").forEach((cell, i) => {
-    //     // if (flatBoard[i] == 0) cell.classList.add("blue");
-
-    //     // cell.classList.add("blue");
-
-    //     if (!cells.includes(i+1)) cell.classList.add("blue");
-
-    // });
-
-    console.log(win(board, player));
-
 
     if (!win(board, player)) {
         document.querySelector("#designed").style.opacity = 0.5;
-
-        console.log("draw");
         return;
     }
 
@@ -61,167 +127,71 @@ const showWinner = (row) => {
 
         document.querySelectorAll('.disc').forEach((disc) => {
 
-            // console.log("disc");
-
             if (cells.every(cell => !disc.classList.contains(cell))) {
-                // disc.style.opacity = 0.2;
-
-                // cell.classList.add("blue");
-
-                // disc.style.transition = "visibility 1s";  
-
-                // disc.style.visibility = "hidden";
-
 
                 disc.style.transition = "opacity 1s";  
-
-                disc.style.opacity = 0.2;
-
             }
         });
 
-        console.log("duration", [...durations].reverse()[row] * 1000);
+        document.querySelectorAll('.disc').forEach((disc) => {
+
+            if (cells.every(cell => !disc.classList.contains(cell))) {
+                disc.style.opacity = 0.5;
+            }
+        });
+
+        // console.log("duration", [...durations].reverse()[row] * 1000);
 
     }, [...durations].reverse()[row] * 1000);
 
     setTimeout(() => {
 
         document.querySelector("#designed").style.opacity = 0.5;
-
         document.querySelectorAll(".cell").forEach((cell, i) => {
-
-        if (flatBoard[i] == 0) cell.classList.add("blue");
-
-
-            // if (flatBoard[i] != 0) cell.classList.remove("blue");
-    
-            // cell.classList.add("blue");
-    
-            // if (!cells.includes(i+1)) cell.classList.add("blue");
-    
+         if (flatBoard[i] == 0) cell.classList.add("blue");
         });
 
         document.querySelectorAll('.disc').forEach((disc) => {
-
-            // console.log("disc");
-            // disc.style.opacity = 1;
-
-            // disc.style = "";
-
-            // disc.style.transition = "visibility 0s";  
-
-
-            // disc.style.visibility = "visible";
-
             disc.style.opacity = 1;
-
         })
     }, [...durations].reverse()[row] * 1000 + 1000);
-    
-}
 
-const printBoard = (board) => {
-    console.log([...board].reverse());
+    // setTimeout(() => {
+
+    //     let cells = document.querySelectorAll('.cell');
+    //     let touchEvent = new Event('touchstart');
+
+    //     cells[4].dispatchEvent(touchEvent);
+
+    // }, [...durations].reverse()[row] * 1000 + 1000 + 1500);
 }
 
 const dropDisc = (board, row , column, color) => {
 
-    // console.log(board);
-
     const topCell = document.querySelector(`#cell${column + 1}`);
     const disc = document.querySelector(`#disc${numberOfRows * numberOfColumns - freeCells(board)}`);
-    const targetCell = document.querySelector(`#cell${cell(row, column)}`);
+    const targetCell = document.querySelector(`#cell${cellNumber(row, column)}`);
 
-    disc.classList.add(`${cell(row, column)}`);
-
-
-
-    // const rectDisc = document.querySelector(`#disc1`).getBoundingClientRect();
-    // const rectCell = document.querySelector(`#cell39`).getBoundingClientRect();
-
-    // console.log(rectDisc);
-
-    // console.log(rectCell);
-
-    // const topCell = document.querySelector(`#cell4`);
-
-    // const disc = document.querySelector(`#disc1`);
-
-    // const targetCell = document.querySelector(`#cell4`);
-
-    // console.log(topCell.offsetHeight);
-
-    // console.log(disc.offsetHeight);
-
-
+    disc.classList.add(`${cellNumber(row, column)}`);
     disc.style.left = topCell.offsetLeft + (topCell.offsetWidth - disc.offsetWidth) / 2 + "px";
     disc.style.top = topCell.offsetTop + (topCell.offsetHeight - disc.offsetHeight) / 2 - topCell.offsetHeight * 1.5 + "px";
 
-
-
-    // console.log("disc.style.top", disc.style.top);
-
-    // console.log("targercell.top", targetCell.offsetTop);
-
-
-   
     if (color == 1) disc.classList.add("yellow");
     if (color == 2) disc.classList.add("red");
 
     disc.style.opacity = 1;
-
-    // disc.style.transition = `transform ${0.6 / 6 * (6 - row)}s cubic-bezier(0.33, 0, 0.66, 0.33)`;
-
     disc.style.transition = `transform ${[...durations].reverse()[row]}s cubic-bezier(0.33, 0, 0.66, 0.33)`;
 
     let distance = targetCell.offsetTop + (targetCell.offsetHeight - disc.offsetHeight) / 2  -  parseFloat(disc.offsetTop) + "px";
-    let styles = window.getComputedStyle(targetCell, '::after')
-    // let content = styles['left'];
-
-    // console.log("target ", styles.top);
-
-
-    // console.log("distance ", distance);
-
-    // console.log("disc.style.top", parseFloat(disc.offsetTop));
-
 
     disc.style.transform = `translateY(${distance})`;
-
-
-    // disc.style.transform = `translateY(${distance}) rotateY(30deg)`;
-
-
-    // disc.style.transform = `rotateY(30deg)`;
-
-    // const disc1 = document.querySelector(`#disc1`);
-
-    // const cell1 = document.querySelector(`#cell39`);
-
-
-    // console.log(disc1.offsetTop);
-    // console.log(disc1.offsetLeft);
-    // console.log(disc1.offsetWidth);
-    // console.log(disc1.offsetHeight);
-
-    // console.log("");
-
-
-    // console.log(cell1.offsetTop);
-    // console.log(cell1.offsetLeft);
-    // console.log(cell1.offsetWidth);
-    // console.log(cell1.offsetHeight);
-
-
-    // console.log("");
-
 }
 
-const clearBoard = () => {
+const clearBoard = (cleaningTime) => {
 
     document.querySelector("#designed").style.transition = "background-color 0s ease-in-out"; //
     document.querySelector("#designed").style.opacity = 1; //
-    document.querySelectorAll(".cell").forEach((cell) =>{
+    document.querySelectorAll(".cell").forEach((cell) => {
         cell.style.transition = "background-color 0s ease-in-out";  
     });
 
@@ -229,20 +199,32 @@ const clearBoard = () => {
             cell.classList.remove("blue");
     });
 
+    document.querySelectorAll(".disc").forEach((disc) => {
+
+        // if (phoneApp()) {
+            disc.style.transition = `transform ${cleaningTime / 1000}s cubic-bezier(0.33, 0, 0.66, 0.33)`;
+        // } else {
+        //     disc.style.transition = `transform 0.8s cubic-bezier(0.33, 0, 0.66, 0.33)`;
+        // }
+    });
 
     document.querySelectorAll(".disc").forEach((disc) => {
 
-        // disc.style.transition = "opacity 0s";  
-        // disc.style.opacity = 1;
+        let offset;
 
-        disc.style.transition = `transform 0.6s cubic-bezier(0.33, 0, 0.66, 0.33)`;
         let board = document.querySelector(".board");
-        let offset = board.offsetHeight + (board.offsetHeight / 6 ) * 1.5 + window.innerHeight - board.offsetTop - board.offsetHeight;
+
+        if (window.innerHeight > window.innerWidth) {
+            offset = board.offsetHeight + (board.offsetHeight / 6 ) * 1.5 + window.innerHeight - board.offsetTop - board.offsetHeight;
+        } else {
+            offset = board.offsetHeight + (board.offsetHeight / 6 ) * 1.5 + window.innerWidth - board.offsetTop - board.offsetHeight;
+        }
+
         disc.style.transform += `translateY(${offset}px)`;
     });
 }
 
-const clearDiscs = () => {
+const resetDiscs = () => {
 
     document.querySelector("#designed").style = ""; //
     document.querySelectorAll(".cell").forEach((cell) =>{
@@ -250,15 +232,11 @@ const clearDiscs = () => {
     });
     document.querySelectorAll(".disc").forEach((disc) =>{
         disc.style = "";
-        // disc.style.className = "";
-        // disc.classList.add("disc");
-
         disc.classList.remove("red");
         disc.classList.remove("yellow");
 
         for (let i = 1; i <= numberOfRows * numberOfColumns; i++) {
             disc.classList.remove(`${i}`);
-
         }
     });
 }

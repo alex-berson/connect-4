@@ -10,25 +10,14 @@
 }
 
 :root {
-
     --board-size: 0.87;
-
-    /* --board-size: 360px; */
-
-
     --blue: steelblue;
     --red: #e23838;
-    /* --yellow: #ffb900; */
-
-    /* --red: #eb001b; */
     --yellow: #f79e1b;
-
-    /* --hole-size: calc((var(--board-size) - 20px)/ 7 / 1.15); */
-
+    --background-color: white;
     --hole-size: calc(var(--board-size ) / 7 / 1.15);
-
-
-
+    --font-size: 19.7vmin;
+    --border-size: 10px;
 }
 
 #outer {
@@ -51,134 +40,49 @@
 }
 
 h1{
-    text-align: center;
-    font-size: 20.5vmin;
+    display: inline-block;
+    margin: 0;
+    font-size: var(--font-size);
     color: var(--blue);
-    margin-top: 0px;
-
     transition: color 1s ease-in-out;  
-
 }
 
 body{
     font-family: 'Roboto Slab', serif;
-    margin: 0px;
-    background-color: seashell;
-
-    /* position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%); */
-
+    background-color: var(--background-color);
+    text-align: center;
+    opacity: 0;
+    transition: opacity 2s ease;
 }
-
-
-/* .border{
-
-    width: var(--board-size);
-    height: calc(var(--board-size) - var(--board-size) / 7);
-
-    border-radius: 25px;
-
-    margin: auto;
-
-
-
-    position:   relative;
-    overflow:   hidden;
-
-    z-index: 200;
-}
-
-.border::after{
-
-    content: "";
-    position: absolute;
-    left: 0; 
-    right: 0;
-    margin: 10px auto;
-
-    width: calc(var(--board-size) - 20px);
-    height: calc(var(--board-size) - var(--board-size) / 7 - 12px);
-
-
-    border-radius: 25px;
-
-    box-shadow: 0 0 0 1000px #4682B4;
-
-} */
 
 .board{
     display: grid;
-
-    position: relative; /* absolute */
-
+    position: relative;
     grid-template-columns: repeat(7, 1fr);
-
-    border: 10px solid var(--blue);    /* */
-
-    border-bottom: 20px solid var(--blue); /* */
-
-    border-radius: 25px;   
-
-    /* width: calc(var(--board-size) - 16px);
-
-    height: calc(var(--board-size) - var(--board-size) / 7 - 24px); */
-
+    border: var(--border-size) solid var(--blue);
+    border-bottom: 20px solid var(--blue);
+    border-radius: 25px;  
     width: var(--board-size);
-
     height: calc(var(--board-size) - var(--board-size) / 7);
-
-    /* left: 8px; 
-    top: 7px; */
-
-    margin: auto; /* */
-    margin-top: 100px; /* */
-
-    /* z-index: 100; */
-
-
+    margin: auto; 
+    margin-top: 100px; 
 }
 
 #designed{
-
     position: absolute;
-
     left: 0; 
     right: 0; 
-    margin-left: auto; 
-    margin-right: auto; 
-
-    /* margin-top: calc(var(--board-size) - var(--board-size) / 7 - 0.9vmin); */
-
-    margin-top: calc(var(--board-size) - var(--board-size) / 7 + 0.5vmin);
-
-
-
+    margin-top: calc(var(--board-size) - var(--board-size) / 7 + 2px);
     text-align: center;
-    /* align-self: auto; */
-    color: seashell;
-    font-size: 2.6vmin; 
-
-    /* opacity: 0.5; */
-
+    color: var(--background-color);
+    font-size: 10px;
     transition: opacity 1s ease-in-out;  
-
-
-
 }
 
-
 .cell{
-
     position: relative;
-
     transition: background-color 1s ease-in-out;  
-
     overflow: hidden;
-
-
 }
 
 .cell::after{
@@ -187,8 +91,6 @@ body{
     left: 0;
     right: 0;
     margin: calc((var(--board-size) / 7 - var(--hole-size)) / 2) auto;
-
-
     width: var(--hole-size);
     height: var(--hole-size);
     border-radius: 50%;
@@ -196,58 +98,25 @@ body{
 }
 
 .disc{
-
-
     border-radius: 50%;
-
     height:  calc(var(--hole-size) + 4px);
     width:   calc(var(--hole-size) + 4px);
-   
-
     position: absolute;
     opacity: 0;
-
-    transition: opacity 3s ease-in-out;  
-
-
     z-index: -100;
-
-
 }
 
 .red{
-
     background-color: var(--red);
 }
 
 .yellow{
-
     background-color: var(--yellow);
 }
 
 .blue{
-
     background-color: rgba(70, 130, 180, 0.5);
 }
-
-/* .text{
-    position: absolute;
-
-
-    top: 530px;
-
-
- 
-
-    z-index: 200;
-
-
-margin-left: 18px;
-
-    font-size: 2.6vmin;
-
-
-} */
 
 @media (orientation: landscape){
 
@@ -261,77 +130,55 @@ margin-left: 18px;
     }
 }
 
+@media (max-width: 320px), (max-height: 320px){
+
+    .board{
+        margin-top: 70px; 
+    }
+}
+
+
 @media (min-width: 460px) and (min-height: 460px){
 
-    :root {
-
-        /* --hole-size: 5.5vmin; */
-       
+    :root{
+        --border-size: 20px;
     }
 
     h1{
-        font-size: 20vmin;
+
+        font-size: calc(var(--font-size) + 1.2vmin);
     }
 
     .board{
-        border: 20px solid var(--blue);
-
+        border: var(--border-size) solid var(--blue);
         border-radius: 50px;
-
         border-bottom: 40px solid var(--blue);
-
-
-  
-
-
     }
 
     #designed{
-        font-size: 2vmin; 
-
-        /* margin-top: calc(var(--board-size) - var(--board-size) / 7 - 0.2vmin); */
-
-        /* margin-top: calc(var(--board-size) - var(--board-size) / 7 + 0.5vmin); */
-
-        margin-top: calc(var(--board-size) - var(--board-size) / 7 + 1.2vmin);
-
-
-
+        font-size: 16px; 
+        margin-top: calc(var(--board-size) - var(--board-size) / 7 + 10px);
     }
-
-    .cell{
-        /* background-color: var(--blue); */
-
-
-        position: relative;
-        /* background: radial-gradient(transparent var(--hole-size),var(--blue) calc(var(--hole-size) / 2)); */
-
-        overflow: hidden;
-
-    
-    }
-
 }
 
 @media (min-width: 1200px), (min-height: 1200px){
 
-    #designed{
-
-        font-size: 2vmin; 
-
-        margin-top: calc(var(--board-size) - var(--board-size) / 7 + 0.5vmin);
-
-
+    h1{
+        font-size: calc(var(--font-size) + 1vmin);
     }
 
+    #designed{
+        font-size: 20px; 
+        margin-top: calc(var(--board-size) - var(--board-size) / 7 + 5px);
+    }
 }
 
 .noselect {
--webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none;
-        -webkit-user-select: none; 
-           -moz-user-select: none; 
-            -ms-user-select: none; 
-                user-select: none; 
+    -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+            -webkit-user-select: none; 
+            -moz-user-select: none; 
+                -ms-user-select: none; 
+                    user-select: none; 
 }
  

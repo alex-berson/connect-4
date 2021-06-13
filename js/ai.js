@@ -1,6 +1,5 @@
-function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initialColumnes) {
+const minimax = (board, depth, alpha, beta, maximizingPlayer, startTime, initialColumnes) => {
 
-    let scores = [];
     let tempBoard;
     let bestScore;
     let validMoves = getValidMoves(board);
@@ -24,13 +23,12 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
         
         for (let column of validMoves) {
 
-            tempBoard = board.copy();
+            tempBoard = board.map(arr => arr.slice());
     
             placeDisc(tempBoard, column, player);
     
             [_, score] = minimax(tempBoard, depth - 1, alpha, beta, false, startTime, null);
 
-            if (initialColumnes != null) scores[column] = score;
             if (score > bestScore) [bestScore, bestColumn] = [score, column];
 
             alpha = Math.max(alpha, score);
@@ -45,7 +43,7 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
         
         for (let column of validMoves) {
 
-            tempBoard = board.copy();
+            tempBoard = board.map(arr => arr.slice());
     
             placeDisc(tempBoard, column, opponent);
     
@@ -61,38 +59,37 @@ function minimax(board, depth, alpha, beta, maximizingPlayer, startTime, initial
     }
 }
 
-function negamax(board, depth, alpha, beta, color) {
+const negamax = (board, depth, alpha, beta, color, startTime, initialColumnes) => {
 
     let tempBoard;
     let bestScore;
     let validMoves = getValidMoves(board);
-    let scores = [];
     let opponent = player == ai ? human : ai;
     let currentPlayer = color == 1 ? player : opponent;
     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
-    if (depth == 0 || terminalNode(board)) return [null, null,  color * evaluation(board, player)];
+    if (depth == 0 || terminalNode(board)) return [null,  color * evaluation(board, player)];
+    if (timeOut(startTime)) return [null, null];
+    if (initialColumnes != null) validMoves = [...new Set([...initialColumnes, ...validMoves])];
  
     bestScore = -Infinity;
     
     for (let column of validMoves) {
 
-        tempBoard = board.copy();
+        tempBoard = board.map(arr => arr.slice());
 
         placeDisc(tempBoard, column, currentPlayer);
 
-        score = -negamax(tempBoard, depth - 1, -beta, -alpha, -color)[2];
+        score = -negamax(tempBoard, depth - 1, -beta, -alpha, -color, startTime, null)[1];
 
-        if (depth == depthLimit) scores[column] = score;
         if (score > bestScore) [bestScore, bestColumn] = [score, column];
 
         alpha = Math.max(alpha, score);
 
         if (alpha >= beta) break;
-
     }
 
-    return [scores, bestColumn, bestScore];
+    return [bestColumn, bestScore];
 }
 
 const monteCarlo = (board, startTime) => {
@@ -110,7 +107,7 @@ const monteCarlo = (board, startTime) => {
     let tempBoard;
 
     do{
-            tempBoard = board.copy();
+            tempBoard = board.map(arr => arr.slice());
             color = player;
             firstMove = null;
 
@@ -122,14 +119,9 @@ const monteCarlo = (board, startTime) => {
                 if (firstMove == null) firstMove = column;
         
                 placeDisc(tempBoard, column, color);
-        
-                // if (win(tempBoard, player)) {stats[firstMove].wins++; stats[firstMove].visits++; break}
-        
-                // if (win(tempBoard, opponent)) {stats[firstMove].wins--; stats[firstMove].visits++ ; break}
-
-
-                if (win(tempBoard, player)) {stats[firstMove].wins += 1000 * freeCells(tempBoard); stats[firstMove].visits++; break}
-                if (win(tempBoard, opponent)) {stats[firstMove].wins -= 1000 * freeCells(tempBoard); stats[firstMove].visits++ ; break}
+    
+                if (win(tempBoard, player)) {stats[firstMove].wins += 100 * freeCells(tempBoard); stats[firstMove].visits++; break}
+                if (win(tempBoard, opponent)) {stats[firstMove].wins -= 100 * freeCells(tempBoard); stats[firstMove].visits++ ; break}
                 if (boardFull(tempBoard)) {stats[firstMove].visits++ ; break}
         
                 color = color == ai ? human : ai;
@@ -142,62 +134,11 @@ const monteCarlo = (board, startTime) => {
 
     for (let [i, s] of stats.entries()) {
 
-        // console.log(s.wins / s.visits);
-
         if (s.visits == 0) continue;
         if (s.wins / s.visits > bestValue) [bestValue, bestColumn] = [s.wins / s.visits, i]
 
     }
 
-
-    console.log(stats);
-
-    // console.log(bestColumn);
-
-    return bestColumn;
-
-}
-
-const evristik = (board, color, validMoves) => {
-
-    let tempBoard;
-    let tempBoard2;
-    let score;
-    let scoreArray = [0,0,0,0,0,0,0,] //
-
-    // let validMoves = getValidMoves(board);
-
-    let bestScore = -Infinity;
-
-    for (let column of validMoves) {
-
-        tempBoard = board.copy();
-
-        placeDisc(tempBoard, column, color);
-
-        score = evaluatePosition(tempBoard, color);
-
-        // if (!win(tempBoard, color)) {
-
-        //     let reversedColor = color == ai ? human : ai;
-
-        //     let validMoves2 = getValidMoves(tempBoard);
-
-        //     for (let column2 of validMoves2) {
-
-        //         tempBoard2 = tempBoard.copy();
-
-        //         placeDisc(tempBoard2, column2, reversedColor);
-
-        //         if (win(tempBoard2, reversedColor)) score -= 50;
-
-        //     }
-        // }
-
-        scoreArray[column] = score; //
-
-        if (score > bestScore) [bestScore, bestColumn] = [score, column];
-    }
-
     return bestColumn;
 }
+
