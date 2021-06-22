@@ -27,23 +27,7 @@ const cellNumber = (r, c) => numberOfColumns * ((numberOfRows - 1) - r) + (c + 1
 
 const togglePlayer = () =>  player = player == ai ? human : ai;
 
-const resetBoard = () => {
-    board = Array.from(Array(numberOfRows), _ => Array(numberOfColumns).fill(0));
-
-    // board = [[2,1,2,1,1,2,2],
-    //         [1,2,1,2,1,1,1],
-    //         [1,2,1,1,2,2,2,],
-    //         [2,1,2,2,2,1,1],
-    //         [2,2,1,1,1,2,2],
-    //         [1,1,1,2,2,1,0]];
-
-    // board = [[1,2,2,2,1,2,1],
-    //         [0,1,1,1,2,1,1],
-    //         [0,0,2,1,2,2,2,],
-    //         [0,0,2,2,1,1,1],
-    //         [0,0,0,2,0,0,2],
-    //         [0,0,0,0,0,0,1]];
-}
+const resetBoard = () => board = Array.from(Array(numberOfRows), _ => Array(numberOfColumns).fill(0));
 
 const freeCells = (board) => {
 
@@ -145,7 +129,7 @@ const resetGame = () =>{
     if (player == ai) {
             setTimeout(() => {
                 resetDiscs();
-                aiMove();
+                aiTurn();
             }, cleaningTime);
     } else {
         setTimeout(() => {
@@ -159,9 +143,7 @@ const autoPlay = () => {
 
     player = (Math.random() < 0.5) ? human : ai;
 
-    // player = human;
-
-    moovingInterval = setInterval(aiMove, timeLimit + 100); 
+    moovingInterval = setInterval(aiTurn, timeLimit + 100); 
 }
 
 const init = () => {
@@ -173,10 +155,6 @@ const init = () => {
     disableTouchMove();
     resetBoard();
     enableTouch();
-
-    // autoPlay();
-
-    // takeScreenshot(); 
 }
 
 window.onload = () => {

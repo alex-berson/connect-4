@@ -1,6 +1,6 @@
 # Connect 4
 
-Be the first to get four of your discs in a row - horizontally, vertically or diagonally.<br> 
+Be the first to get four of your discs in a row - horizontally, vertically, or diagonally.<br> 
 You can [play Connect 4 against the AI online](https://alex-berson.github.io/connect-4/) or <br>
 [<img src="images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg">](https://apps.apple.com/us/app/id1568835389)
 

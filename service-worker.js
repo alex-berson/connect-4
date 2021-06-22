@@ -4,12 +4,11 @@ const files = [
   'index.html',
   'css/style.css',
   'js/connect4.js',
-  'js/move.js',
+  'js/turn.js',
   'js/ai.js',
   'js/evaluation.js',
   'js/win.js',
   'js/ui.js',
-  'js/helpers.js',
   'fonts/RobotoSlab-Regular-webfont.woff',
   'fonts/RobotoSlab-Bold-webfont.woff'
 ];

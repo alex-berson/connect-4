@@ -20,9 +20,9 @@ const phoneApp = () => {
 const enableTouch = () => {
     for (let cell of document.querySelectorAll('.cell')){
         if (touchScreen()){
-            cell.addEventListener("touchstart", humanMove);
+            cell.addEventListener("touchstart", humanTurn);
         } else {
-            cell.addEventListener("mousedown", humanMove);
+            cell.addEventListener("mousedown", humanTurn);
         }
     }
 }
@@ -30,9 +30,9 @@ const enableTouch = () => {
 const disableTouch = () => {
     for (let cell of document.querySelectorAll('.cell')){
         if (touchScreen()){
-            cell.removeEventListener("touchstart", humanMove);
+            cell.removeEventListener("touchstart", humanTurn);
         } else {
-            cell.removeEventListener("mousedown", humanMove);
+            cell.removeEventListener("mousedown", humanTurn);
         }
     }
 }
@@ -56,57 +56,15 @@ const setFontSize = () => {
     let h1 = document.querySelector('h1');
     let board = document.querySelector('.board');
 
-    // let designed = document.querySelector('#designed');
-
-    // let fontSize = parseFloat(getComputedStyle(h1).getPropertyValue("font-size"));
-
     let fontSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--font-size'));
     
     let borderSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--border-size'));
 
-
-    // alert(fontSize);
-
-
-    // alert(h1.offsetWidth);
-    // console.log("board", board.offsetWidth);
-
-
-    // console.log(window.screen.width);
-
-    // alert(board.offsetWidth / window.screen.width);
-
-    // console.log(fontSize);
-
-    // console.log(parseFloat(getComputedStyle(h1).getPropertyValue("width")));
-    // console.log(parseFloat(getComputedStyle(board).getPropertyValue("width")) + borderSize * 2);
-
-    // alert(parseFloat(getComputedStyle(designed).getPropertyValue("height")));
-
-
-    // alert(parseFloat(getComputedStyle(h1).getPropertyValue("width")));
-    // alert(parseFloat(getComputedStyle(board).getPropertyValue("width")) + borderSize * 2);
-
     while (parseInt(getComputedStyle(h1).getPropertyValue("width")) <= parseInt(getComputedStyle(board).getPropertyValue("width")) + borderSize * 2) {
 
         fontSize += 0.2;
-        // h1.style.fontSize = fontSize + "vmin";
-
         document.documentElement.style.setProperty('--font-size', fontSize + 'vmin');
-
-
-        // console.log(fontSize);
     }
-
-    // fontSize = fontSize + 0.2;
-
-    // if (borderSize == 20) fontSize = fontSize + 0.3;
-
-
-    // document.documentElement.style.setProperty('--font-size', fontSize + 'vmin');
-
-    // alert(parseFloat(getComputedStyle(h1).getPropertyValue("width")));
-    // alert(parseFloat(getComputedStyle(board).getPropertyValue("width")) + borderSize * 2);
 }
 
 const showBoard = () => {
@@ -139,9 +97,6 @@ const showWinner = (row) => {
                 disc.style.opacity = 0.5;
             }
         });
-
-        // console.log("duration", [...durations].reverse()[row] * 1000);
-
     }, [...durations].reverse()[row] * 1000);
 
     setTimeout(() => {
@@ -155,15 +110,6 @@ const showWinner = (row) => {
             disc.style.opacity = 1;
         })
     }, [...durations].reverse()[row] * 1000 + 1000);
-
-    // setTimeout(() => {
-
-    //     let cells = document.querySelectorAll('.cell');
-    //     let touchEvent = new Event('touchstart');
-
-    //     cells[4].dispatchEvent(touchEvent);
-
-    // }, [...durations].reverse()[row] * 1000 + 1000 + 1500);
 }
 
 const dropDisc = (board, row , column, color) => {
@@ -189,8 +135,8 @@ const dropDisc = (board, row , column, color) => {
 
 const clearBoard = (cleaningTime) => {
 
-    document.querySelector("#designed").style.transition = "background-color 0s ease-in-out"; //
-    document.querySelector("#designed").style.opacity = 1; //
+    document.querySelector("#designed").style.transition = "background-color 0s ease-in-out";
+    document.querySelector("#designed").style.opacity = 1;
     document.querySelectorAll(".cell").forEach((cell) => {
         cell.style.transition = "background-color 0s ease-in-out";  
     });
@@ -200,12 +146,7 @@ const clearBoard = (cleaningTime) => {
     });
 
     document.querySelectorAll(".disc").forEach((disc) => {
-
-        // if (phoneApp()) {
-            disc.style.transition = `transform ${cleaningTime / 1000}s cubic-bezier(0.33, 0, 0.66, 0.33)`;
-        // } else {
-        //     disc.style.transition = `transform 0.8s cubic-bezier(0.33, 0, 0.66, 0.33)`;
-        // }
+        disc.style.transition = `transform ${cleaningTime / 1000}s cubic-bezier(0.33, 0, 0.66, 0.33)`;
     });
 
     document.querySelectorAll(".disc").forEach((disc) => {
@@ -226,7 +167,7 @@ const clearBoard = (cleaningTime) => {
 
 const resetDiscs = () => {
 
-    document.querySelector("#designed").style = ""; //
+    document.querySelector("#designed").style = "";
     document.querySelectorAll(".cell").forEach((cell) =>{
         cell.style = "";
     });

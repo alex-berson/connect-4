@@ -6,17 +6,10 @@ const minimax = (board, depth, alpha, beta, maximizingPlayer, startTime, initial
     let opponent = player == ai ? human : ai;
     let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
-    if (player == ai) {
-        if (depth == 0 || terminalNode(board)) return [null, evaluation(board, player)];
-    } else {
-        if (win(board, player)) return [null, 100 * (freeCells(board) + 1)];
-        if (win(board, opponent)) return [null, -100 * (freeCells(board) + 1)];
-        if (boardFull(board)) return [null, 0];
-        if (depth == 0) return [null, evaluation(board, player)];
-    }
-
+    if (depth == 0 || terminalNode(board)) return [null, evaluation(board, player)];
     if (timeOut(startTime)) return [null, null];
     if (initialColumnes != null) validMoves = [...new Set([...initialColumnes, ...validMoves])];
+    
     if (maximizingPlayer) {
         
         bestScore = -Infinity;

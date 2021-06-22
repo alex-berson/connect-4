@@ -72,29 +72,6 @@ const verticalEval = (board, color) => {
     return score;
 }
 
-// const diagonalEval = (board, color) => {
-
-//     let score = 0;
-
-//     for (let r = 0; r < numberOfRows - 3; r++) {
-//         for (let c = 0; c < numberOfColumns - 3; c++) {
-
-//             let adjacentPlus = [];
-//             let adjacentMinus = [];
-
-//             for (let i = 0; i < 4; i++) {
-//                 adjacentPlus.push(board[r + i][c + i]);
-//                 adjacentMinus.push(board[r + 3 - i][c + i]);
-//             }
-
-//             score += adjacent4Eval(board, adjacentPlus, color);
-//             score += adjacent4Eval(board, adjacentMinus, color);
-//         }
-//     }
-
-//     return score;
-// } 
-
 const diagonalPositiveEval = (board, color) => {
 
     let score = 0;
@@ -138,8 +115,7 @@ const diagonalNegativeEval = (board, color) => {
 const evaluation = (board, color) => {
 
     let score = 0;
-    // score = centralColumnEval(board, color) + horizontalEval(board, color) + verticalEval(board, color) + diagonalEval(board, color);
-
+    
     score = centralColumnEval(board, color) + horizontalEval(board, color) + verticalEval(board, color) + diagonalPositiveEval(board, color) + diagonalNegativeEval(board, color);
 
     return score;
