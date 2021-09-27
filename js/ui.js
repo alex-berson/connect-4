@@ -2,7 +2,7 @@ const disableTouchMove = () => {
 
     const preventDefault = (e) => e.preventDefault();
 
-    document.body.addEventListener('touchmove', preventDefault, { passive: false });
+    document.body.addEventListener('touchstart', preventDefault, { passive: false });
 }
 
 const touchScreen = () => {
