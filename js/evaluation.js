@@ -120,25 +120,3 @@ const evaluation = (board, color) => {
 
     return score;
 }
-
-const matrixEval = (board, color) => {
-
-    let score = 138;
-    let reversedColor = color == ai ? human : ai;
-
-    const matrix = [[3, 4, 5, 7, 5, 4, 3], 
-                    [4, 6, 8, 10, 8, 6, 4],
-                    [5, 8, 11, 13, 11, 8, 5], 
-                    [5, 8, 11, 13, 11, 8, 5],
-                    [4, 6, 8, 10, 8, 6, 4],
-                    [3, 4, 5, 7, 5, 4, 3]]
-
-    for (let r = 0; r < numberOfRows; r++) {
-        for (let c = 0; c < numberOfColumns; c++) {
-            if (board[r][c] == color) score += matrix[r][c];
-            if (board[r][c] == reversedColor) score -= matrix[r][c];
-        }
-    }
-
-    return score;
-}

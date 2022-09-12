@@ -13,6 +13,18 @@ const durations = [0.15, 0.28, 0.38, 0.46, 0.54, 0.61];
 
 let firstPlayer = player = human;
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+            .then(reg => {
+                console.log('Service worker registered!', reg);
+            })
+            .catch(err => {
+                console.log('Service worker registration failed: ', err);
+            });
+    });
+} 
+
 const timeOut = (startTime) => new Date() - startTime >= timeLimit;
 
 const placeDisc = (board, column, color) => board[freeRaw(board, column)][column] = color; 
@@ -100,20 +112,6 @@ const getValidMoves = (board) => {
     return validMoves;
 }
 
-setServiceWorker = () => {
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(reg => {
-                    console.log('Service worker registered!', reg);
-                })
-                .catch(err => {
-                    console.log('Service worker registration failed: ', err);
-                });
-        });
-    } 
-}
-
 const resetGame = () =>{
 
     const cleaningTime = 800;
@@ -148,19 +146,11 @@ const autoPlay = () => {
 
 const init = () => {
 
-    setServiceWorker();
     setBoardSize();
-    setFontSize();
     showBoard();
     disableTouchMove();
     resetBoard();
     enableTouch();
 }
 
-window.onload = () => {
-    document.fonts.ready.then(() => {
-        setTimeout(() => {
-            init();     
-        }, 50);
-    });
-}
+window.onload = document.fonts.ready.then(setTimeout(init, 50));

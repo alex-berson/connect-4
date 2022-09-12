@@ -1,10 +1,11 @@
 {
-   "name": "Connect 4",
-   "short_name": "Connect 4",
+   "name": "Four",
+   "short_name": "Four",
    "start_url": "index.html",
    "display": "standalone",
+   "orientation":  "portrait",
    "background_color": "#ffffff",
-   "theme_color": "#5f9ea0",
+   "theme_color": "#ffffff",
    "icons": [{
       "src": "images/icons/android-chrome-192x192.png",
       "sizes": "192x192",

@@ -1,4 +1,4 @@
-const cacheName = 'cache-v1';
+const cacheName = 'cache-v2';
 const files = [
   'https://alex-berson.github.io/connect-4/',
   'index.html',
@@ -9,8 +9,8 @@ const files = [
   'js/evaluation.js',
   'js/win.js',
   'js/ui.js',
-  'fonts/RobotoSlab-Regular-webfont.woff',
-  'fonts/RobotoSlab-Bold-webfont.woff'
+  'fonts/Roboto-Regular-webfont.woff',
+  'fonts/Roboto-Black-webfont.woff'
 ];
 
 self.addEventListener('install', event => {

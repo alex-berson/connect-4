@@ -16,5 +16,5 @@ You can [play Connect 4 against the AI online](https://alex-berson.github.io/con
 
 ## License
 
-Copyright &copy; 2021 Alexander Berson. This project is licensed under the [MIT license](LICENSE.txt "MIT License").
+Copyright &copy; 2021-2022 Alexander Berson. This project is licensed under the [MIT license](LICENSE.txt "MIT License").
 

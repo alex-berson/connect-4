@@ -3,6 +3,7 @@ const disableTouchMove = () => {
     const preventDefault = (e) => e.preventDefault();
 
     document.body.addEventListener('touchstart', preventDefault, { passive: false });
+    document.body.addEventListener('mousedown', preventDefault, {passive: false});
 }
 
 const touchScreen = () => {
@@ -49,22 +50,6 @@ const setBoardSize = () => {
 
     document.documentElement.style.setProperty('--board-size', boardSize + 'px');
     document.documentElement.style.setProperty('--hole-size', holeSize + 'px');
-}
-
-const setFontSize = () => {
-
-    let h1 = document.querySelector('h1');
-    let board = document.querySelector('.board');
-
-    let fontSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--font-size'));
-    
-    let borderSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--border-size'));
-
-    while (parseInt(getComputedStyle(h1).getPropertyValue("width")) <= parseInt(getComputedStyle(board).getPropertyValue("width")) + borderSize * 2) {
-
-        fontSize += 0.2;
-        document.documentElement.style.setProperty('--font-size', fontSize + 'vmin');
-    }
 }
 
 const showBoard = () => {
