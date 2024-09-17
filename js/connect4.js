@@ -1,156 +1,146 @@
-let board = [];
-let moovingInterval;
-let gameOver = false;
-let depth = 1;
+let board;
+let nRows = 6;
+let nCols = 7;
+let empty = 0
+let human = 1;
+let ai = 2;
+let firstPlayer = human;
+let player = firstPlayer;
 
-const numberOfRows = 6;
-const numberOfColumns = 7;
-const timeLimit = 600;
-const empty = 0
-const human = 1;
-const ai = 2;
-const durations = [0.15, 0.28, 0.38, 0.46, 0.54, 0.61];
+const validMove = (board, col) => board[0][col] == 0; 
 
-let firstPlayer = player = human;
+const togglePlayer = () => player = player == ai ? human : ai;
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-            .then(reg => {
-                console.log('Service worker registered!', reg);
-            })
-            .catch(err => {
-                console.log('Service worker registration failed: ', err);
-            });
-    });
-} 
+const gameOver = (board) => win(board, human) || win(board, ai) || boardFull(board);
 
-const timeOut = (startTime) => new Date() - startTime >= timeLimit;
+const initBoard = () => board = Array.from({length: nRows}, () => Array(nCols).fill(0));
 
-const placeDisc = (board, column, color) => board[freeRaw(board, column)][column] = color; 
+const updateBoard = (board, col, color) => board[freeRaw(board, col)][col] = color; 
 
-const validMove = (board, column) => board[numberOfRows - 1][column] == 0; 
+const shuffle = (array) => {
 
-const terminalNode = (board) => win(board, human) || win(board, ai) || boardFull(board);
+    for (let i = array.length - 1; i > 0; i--) {
 
-const draw = (winner) => gameOver && winner == undefined;
+        let j = Math.floor(Math.random() * (i + 1));
 
-const cellNumber = (r, c) => numberOfColumns * ((numberOfRows - 1) - r) + (c + 1);
+        [array[i], array[j]] = [array[j], array[i]];
+    }
 
-const togglePlayer = () =>  player = player == ai ? human : ai;
+    return array;
+}
 
-const resetBoard = () => board = Array.from(Array(numberOfRows), _ => Array(numberOfColumns).fill(0));
+const validMoves = (board) => { 
 
-const freeCells = (board) => {
+    let moves = [];
 
-    let numberOfFreeCells = 0
+    for (let c = 0; c < nCols; c++) {
+        if (validMove(board, c)) moves.push(c);
+    }
+
+    return shuffle(moves);
+}
+
+const nFreeCells = (board) => {
+
+    let n = 0
     
-    for (let i = 0; i < numberOfRows; i++) {
-        for (let j = 0; j < numberOfColumns; j++) {
-            if (board[i][j] == empty) numberOfFreeCells++;
+    for (let r = 0; r < nRows; r++) {
+        for (let c = 0; c < nCols; c++) {
+            if (board[r][c] == empty) n++;
         }
     }
 
-    return numberOfFreeCells;
-}
-
-const freeRaw = (board, column) => { 
-    for (let r = 0; r < numberOfRows; r++)  {
-        if (board[r][column] == 0) return r;
-    }
-}
-
-const occurrences = (array, color) => {
-
-    let occurrencesEmpty = 0;
-    let occurrencesColor = 0;
-    let occurrencesReversedColor = 0;
-    let reversedColor = color == ai ? human : ai;
-
-    for (let i = 0; i < array.length; i++) {
-        if (array[i] == color) occurrencesColor++;
-        if (array[i] == reversedColor) occurrencesReversedColor++;
-        if (array[i] == empty) occurrencesEmpty++;
-    }
-
-    return [occurrencesColor, occurrencesReversedColor, occurrencesEmpty];
-}
-
-const checkEndGame = (board, color) =>  {
-
-    if (win(board, color) || boardFull(board)) {
-        gameOver = true;
-        clearInterval(moovingInterval); //
-    }
+    return n;
 }
 
 const boardFull = (board) => {
-    for (let c = 0; c < numberOfColumns; c++) {
-        if (board[numberOfRows - 1][c] == 0) return false;
+
+    for (let c = 0; c < nCols; c++) {
+        if (board[0][c] == 0) return false;
     }
 
     return true;
 }
 
-const shuffle = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]] 
+const freeRaw = (board, col) => { 
+
+    for (let r = nRows - 1; r >= 0; r--) {
+        if (board[r][col] == 0) return r;
     }
 }
 
-const getValidMoves = (board) => { 
+const newGame = () => {
 
-    let validMoves = [];
-
-    for (let c = 0; c < numberOfColumns; c++) {
-        if (validMove(board, c)) validMoves.push(c);
-    }
-
-    shuffle(validMoves);
-
-    return validMoves;
-}
-
-const resetGame = () =>{
-
-    const cleaningTime = 800;
-    depth = 1;
-    gameOver = false;
     firstPlayer = firstPlayer == human ? ai : human;
     player = firstPlayer;
 
-    disableTouch();
-    clearBoard(cleaningTime);
-    resetBoard();
+    clearBoard();
+    initBoard();
 
-    if (player == ai) {
-            setTimeout(() => {
-                resetDiscs();
-                aiTurn();
-            }, cleaningTime);
+    setTimeout(() => player == ai ? aiTurn() : enableTouch(), 1000);
+}
+
+const aiTurn = async () => {
+
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    let timeLimit = 600;
+    let startTime = new Date();
+    let initMove = nFreeCells(board) == nCols * nRows;
+    let col = initMove ? 3 : minimax(board, startTime, timeLimit);
+    let row = freeRaw(board, col);
+    let delay = (timeLimit - (new Date() - startTime));
+
+    await sleep(initMove ? 0 : delay);
+
+    updateBoard(board, col, player);
+    dropDisc(board, row, col, player);
+
+    if (gameOver(board)) {
+        endGame(row);
     } else {
-        setTimeout(() => {
-            resetDiscs();
-            enableTouch();
-        }, cleaningTime);
+        togglePlayer();
+        setTimeout(enableTouch, 300);
     }
 }
 
-const autoPlay = () => {
+const humanTurn = (e) => {
 
-    player = (Math.random() < 0.5) ? human : ai;
+    let el = e.currentTarget;
+    let col = [...el.parentNode.children].indexOf(el) % 7;
+    let row = freeRaw(board, col);
 
-    moovingInterval = setInterval(aiTurn, timeLimit + 100); 
+    if (!validMove(board, col)) return;
+
+    disableTouch();
+    updateBoard(board, col, player);
+    dropDisc(board, row, col, player);
+
+    if (gameOver(board)) {
+        endGame(row);
+    } else {
+        togglePlayer();
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                aiTurn();
+            });
+        });
+    }
+}
+
+const registerServiceWorker = () => {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+    };
 }
 
 const init = () => {
-
+    registerServiceWorker();
+    disableTapZoom();
     setBoardSize();
+    initBoard();
     showBoard();
-    disableTouchMove();
-    resetBoard();
     enableTouch();
 }
 
-window.onload = document.fonts.ready.then(setTimeout(init, 50));
+window.onload = document.fonts.ready.then(init);

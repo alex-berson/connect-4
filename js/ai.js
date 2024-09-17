@@ -1,54 +1,77 @@
-const minimax = (board, depth, alpha, beta, maximizingPlayer, startTime, initialColumnes) => {
+const timeOver = (startTime, timeLimit) => new Date() - startTime >= timeLimit;
 
-    let tempBoard;
-    let bestScore;
-    let validMoves = getValidMoves(board);
+const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeLimit, initMoves = []) => {
+
+    let bestMove;
+    let moves = validMoves(board);
     let opponent = player == ai ? human : ai;
-    let bestColumn = validMoves[Math.floor(Math.random() * validMoves.length)];
 
-    if (depth == 0 || terminalNode(board)) return [null, evaluation(board, player)];
-    if (timeOut(startTime)) return [null, null];
-    if (initialColumnes != null) validMoves = [...new Set([...initialColumnes, ...validMoves])];
+    if (timeOver(startTime, timeLimit)) return [null, null];
+    if (depth == 0 || gameOver(board)) return [null, evaluation(board, player)];
+    if (initMoves.length != 0) moves = [...new Set([...initMoves, ...moves])];
     
     if (maximizingPlayer) {
         
-        bestScore = -Infinity;
+        let bestScore = -Infinity;
         
-        for (let column of validMoves) {
+        for (let move of moves) {
 
-            tempBoard = board.map(arr => arr.slice());
+            let tempBoard = board.map(arr => arr.slice());
     
-            placeDisc(tempBoard, column, player);
+            updateBoard(tempBoard, move, player);
     
-            [_, score] = minimax(tempBoard, depth - 1, alpha, beta, false, startTime, null);
+            let [_, score] = alphabeta(tempBoard, depth - 1, alpha, beta, false, startTime, timeLimit);
 
-            if (score > bestScore) [bestScore, bestColumn] = [score, column];
+            if (score > bestScore) [bestScore, bestMove] = [score, move];
 
             alpha = Math.max(alpha, score);
 
             if (alpha >= beta) break;
         }
-        return [bestColumn, bestScore];
+
+        return [bestMove, bestScore];
 
     } else {
 
-        bestScore = Infinity;
+        let bestScore = Infinity;
         
-        for (let column of validMoves) {
+        for (let move of moves) {
 
-            tempBoard = board.map(arr => arr.slice());
+            let tempBoard = board.map(arr => arr.slice());
     
-            placeDisc(tempBoard, column, opponent);
+            updateBoard(tempBoard, move, opponent);
     
-            [_, score] = minimax(tempBoard, depth - 1, alpha, beta, true, startTime, null);
+            let [_, score] = alphabeta(tempBoard, depth - 1, alpha, beta, true, startTime, timeLimit);
     
-            if (score < bestScore) [bestScore, bestColumn] = [score, column];
+            if (score < bestScore) [bestScore, bestMove] = [score, move];
 
             beta = Math.min(beta, score);
-
+           
             if (beta <= alpha) break;
         }
-        return [bestColumn, bestScore];
+
+        return [bestMove, bestScore];
     }
 }
 
+const minimax = (board, startTime, timeLimit) => {
+
+    let bestMove, bestScore;
+    let depth = 1;
+    let initMoves = [];
+
+    do {
+
+        let [move, score] = alphabeta(board, depth, -Infinity, Infinity, true, startTime, timeLimit, initMoves);
+
+        if (timeOver(startTime, timeLimit)) break;
+
+        [bestMove, bestScore] = [move, score];
+        initMoves = [...new Set([...[move], ...initMoves])];
+
+        depth++;
+
+    } while(depth <= nFreeCells(board) && Math.abs(bestScore) < 100);
+
+    return bestMove;
+}

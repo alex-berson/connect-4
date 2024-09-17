@@ -1,19 +1,44 @@
+const nDiscs = (cells, color) => {
+
+    let nEmpty = 0;
+    let nColor = 0;
+    let nOpponent = 0;
+    let opponent = color == ai ? human : ai;
+
+    for (let i = 0; i < cells.length; i++) {
+
+        switch (cells[i]) {
+            case color:
+                nColor++;
+                break;
+            case opponent:
+                nOpponent++;
+                break;
+            case empty:
+                nEmpty++;
+                break;
+        }
+    }
+
+    return [nColor, nOpponent, nEmpty];
+}
+
 const adjacent4Eval = (board, adjacent4, color) => {
 
     let score = 0;
-    let [occurrencesColor, occurrencesReversedColor, occurrencesEmpty] = occurrences(adjacent4, color);
+    let [nColor, nOpponent, nEmpty] = nDiscs(adjacent4, color);
 
-    if (occurrencesColor == 4) {
-        score += 100 * (freeCells(board) + 1);
-    } else if (occurrencesColor == 3 && occurrencesEmpty == 1) {
+    if (nColor == 4) {
+        score += 100 * (nFreeCells(board) + 1);
+    } else if (nColor == 3 && nEmpty == 1) {
         score += 5;
-    } else if (occurrencesColor == 2 && occurrencesEmpty == 2) {
+    } else if (nColor == 2 && nEmpty == 2) {
         score += 2;
     }
 
-    if (occurrencesReversedColor == 4) {
-        score -= 100 * (freeCells(board) + 1);
-    } else if (occurrencesReversedColor == 3 && occurrencesEmpty == 1) {
+    if (nOpponent == 4) {
+        score -= 100 * (nFreeCells(board) + 1);
+    } else if (nOpponent == 3 && nEmpty == 1) {
         score -= 4;
     } 
 
@@ -25,7 +50,7 @@ const centralColumnEval = (board, color) => {
     let score = 0;
     let centralColumn = board.map(row => row[3]);
 
-    score = occurrences(centralColumn, color)[0] * 3;
+    score = nDiscs(centralColumn, color)[0] * 3;
 
     return score;
 }
@@ -33,12 +58,11 @@ const centralColumnEval = (board, color) => {
 const horizontalEval = (board, color) => {
 
     let score = 0;
-    let adjacent4 = [];
 
-    for (let r = 0; r < numberOfRows; r++) {
-        for (let c = 0; c < numberOfColumns - 3; c++) {
+    for (let r = 0; r < nRows; r++) {
+        for (let c = 0; c < nCols - 3; c++) {
 
-            adjacent4 = [];
+            let adjacent4 = [];
 
             for (let i = 0; i < 4; i++) {
                 adjacent4.push(board[r][c + i]);
@@ -54,12 +78,11 @@ const horizontalEval = (board, color) => {
 const verticalEval = (board, color) => {
 
     let score = 0;
-    let adjacent4 = [];
 
-    for (let c = 0; c < numberOfColumns; c++) {
-        for (let r = 0; r < numberOfRows - 3; r++) {
+    for (let c = 0; c < nCols; c++) {
+        for (let r = 0; r < nRows - 3; r++) {
 
-            adjacent4 = [];
+            let adjacent4 = [];
 
             for (let i = 0; i < 4; i++) {
                 adjacent4.push(board[r + i][c]);
@@ -72,12 +95,12 @@ const verticalEval = (board, color) => {
     return score;
 }
 
-const diagonalPositiveEval = (board, color) => {
+const diagonalPosEval = (board, color) => {
 
     let score = 0;
 
-    for (let r = 0; r < numberOfRows - 3; r++) {
-        for (let c = 0; c < numberOfColumns - 3; c++) {
+    for (let r = 0; r < nRows - 3; r++) {
+        for (let c = 0; c < nCols - 3; c++) {
 
             let adjacent4 = [];
 
@@ -92,12 +115,12 @@ const diagonalPositiveEval = (board, color) => {
     return score;
 }
 
-const diagonalNegativeEval = (board, color) => {
+const diagonalNegEval = (board, color) => {
 
     let score = 0;
 
-    for (let r = 0; r < numberOfRows - 3; r++) {
-        for (let c = 0; c < numberOfColumns - 3; c++) {
+    for (let r = 0; r < nRows - 3; r++) {
+        for (let c = 0; c < nCols - 3; c++) {
 
             let adjacent4 = [];
 
@@ -113,10 +136,12 @@ const diagonalNegativeEval = (board, color) => {
 }
 
 const evaluation = (board, color) => {
-
-    let score = 0;
     
-    score = centralColumnEval(board, color) + horizontalEval(board, color) + verticalEval(board, color) + diagonalPositiveEval(board, color) + diagonalNegativeEval(board, color);
+    let score = centralColumnEval(board, color) +
+                horizontalEval(board, color) +
+                verticalEval(board, color) + 
+                diagonalPosEval(board, color) +
+                diagonalNegEval(board, color);
 
     return score;
 }

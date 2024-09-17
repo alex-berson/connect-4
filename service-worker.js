@@ -1,16 +1,15 @@
-const cacheName = 'cache-v2';
+const cacheName = 'cache-v3';
 const files = [
-  'https://alex-berson.github.io/connect-4/',
+  '/',
   'index.html',
   'css/style.css',
   'js/connect4.js',
-  'js/turn.js',
   'js/ai.js',
   'js/evaluation.js',
   'js/win.js',
   'js/ui.js',
-  'fonts/Roboto-Regular-webfont.woff',
-  'fonts/Roboto-Black-webfont.woff'
+  'fonts/roboto-regular.woff',
+  'fonts/roboto-black.woff'
 ];
 
 self.addEventListener('install', event => {

@@ -1,168 +1,152 @@
-const disableTouchMove = () => {
+const durations = [150, 280, 380, 460, 540, 610];
 
-    const preventDefault = (e) => e.preventDefault();
+const coordsToIndex = (row, col) => row * nCols + col;
 
-    document.body.addEventListener('touchstart', preventDefault, { passive: false });
-    document.body.addEventListener('mousedown', preventDefault, {passive: false});
-}
-
-const touchScreen = () => {
-    return matchMedia('(hover: none)').matches;
-}
-
-const phoneApp = () => {
-    if ((document.URL.indexOf('http://') == -1 && document.URL.indexOf('https://') == -1) && 
-        (screen.width < 460 || screen.height < 460)) {
-            return true;
-    } 
-    return false;
-}
-
-const enableTouch = () => {
-    for (let cell of document.querySelectorAll('.cell')){
-        if (touchScreen()){
-            cell.addEventListener("touchstart", humanTurn);
-        } else {
-            cell.addEventListener("mousedown", humanTurn);
-        }
-    }
-}
-
-const disableTouch = () => {
-    for (let cell of document.querySelectorAll('.cell')){
-        if (touchScreen()){
-            cell.removeEventListener("touchstart", humanTurn);
-        } else {
-            cell.removeEventListener("mousedown", humanTurn);
-        }
-    }
-}
+const showBoard = () => document.body.style.opacity = 1;
 
 const setBoardSize = () => {
 
-    if (screen.height > screen.width) {
-         var boardSize = Math.ceil(screen.width * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-size')) / 7) * 7;
-    } else {
-         var boardSize = Math.ceil(window.innerHeight * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-size')) / 7) * 7;
-    }
-
+    let minSide = screen.height > screen.width ? screen.width : window.innerHeight;
+    let cssBoardSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--board-size')) / 100;
+    let boardSize = Math.ceil(minSide * cssBoardSize / 7) * 7;
     let holeSize = Math.ceil(boardSize / 7 / 1.15 / 2) * 2;
 
     document.documentElement.style.setProperty('--board-size', boardSize + 'px');
     document.documentElement.style.setProperty('--hole-size', holeSize + 'px');
 }
 
-const showBoard = () => {
-    document.querySelector("body").style.opacity = 1;
-}
+const dropDisc = (board, row, col, player) => {
 
-const showWinner = (row) => {
+    let duration = durations[row];
+    let topCell = document.querySelector(`#c${col + 1}`);
+    let disc = document.querySelector(`#d${nRows * nCols - nFreeCells(board)}`);
+    let targetCell = document.querySelector(`#c${coordsToIndex(row, col) + 1}`);
 
-    let flatBoard = [...board].reverse().flat();
-    let cells = win(board, player);
+    disc.style.left = topCell.offsetLeft + (topCell.offsetWidth - disc.offsetWidth) / 2 + 'px';
+    disc.style.top = topCell.offsetTop + (topCell.offsetHeight - disc.offsetHeight) / 2 - topCell.offsetHeight * 1.5 + 'px';
 
-    if (!win(board, player)) {
-        document.querySelector("#designed").style.opacity = 0.5;
-        return;
-    }
+    disc.dataset.r = row;
+    disc.dataset.c = col;
 
-    setTimeout(() => {
+    disc.classList.add(player == human ? 'yellow' : 'red');
 
-        document.querySelectorAll('.disc').forEach((disc) => {
+    let distance = targetCell.offsetTop + (targetCell.offsetHeight - disc.offsetHeight) / 2 - disc.offsetTop + 'px';
 
-            if (cells.every(cell => !disc.classList.contains(cell))) {
-
-                disc.style.transition = "opacity 1s";  
-            }
-        });
-
-        document.querySelectorAll('.disc').forEach((disc) => {
-
-            if (cells.every(cell => !disc.classList.contains(cell))) {
-                disc.style.opacity = 0.5;
-            }
-        });
-    }, [...durations].reverse()[row] * 1000);
-
-    setTimeout(() => {
-
-        document.querySelector("#designed").style.opacity = 0.5;
-        document.querySelectorAll(".cell").forEach((cell, i) => {
-         if (flatBoard[i] == 0) cell.classList.add("blue");
-        });
-
-        document.querySelectorAll('.disc').forEach((disc) => {
-            disc.style.opacity = 1;
-        })
-    }, [...durations].reverse()[row] * 1000 + 1000);
-}
-
-const dropDisc = (board, row , column, color) => {
-
-    const topCell = document.querySelector(`#cell${column + 1}`);
-    const disc = document.querySelector(`#disc${numberOfRows * numberOfColumns - freeCells(board)}`);
-    const targetCell = document.querySelector(`#cell${cellNumber(row, column)}`);
-
-    disc.classList.add(`${cellNumber(row, column)}`);
-    disc.style.left = topCell.offsetLeft + (topCell.offsetWidth - disc.offsetWidth) / 2 + "px";
-    disc.style.top = topCell.offsetTop + (topCell.offsetHeight - disc.offsetHeight) / 2 - topCell.offsetHeight * 1.5 + "px";
-
-    if (color == 1) disc.classList.add("yellow");
-    if (color == 2) disc.classList.add("red");
-
-    disc.style.opacity = 1;
-    disc.style.transition = `transform ${[...durations].reverse()[row]}s cubic-bezier(0.33, 0, 0.66, 0.33)`;
-
-    let distance = targetCell.offsetTop + (targetCell.offsetHeight - disc.offsetHeight) / 2  -  parseFloat(disc.offsetTop) + "px";
-
+    disc.style.transitionDuration = `${duration / 1000}s`;
     disc.style.transform = `translateY(${distance})`;
 }
 
-const clearBoard = (cleaningTime) => {
+const endGame = (row) => {
 
-    document.querySelector("#designed").style.transition = "background-color 0s ease-in-out";
-    document.querySelector("#designed").style.opacity = 1;
-    document.querySelectorAll(".cell").forEach((cell) => {
-        cell.style.transition = "background-color 0s ease-in-out";  
-    });
+    let delay = durations[row];
+    let designed = document.querySelector('#designed');
+    let line = win(board, player);
 
-    document.querySelectorAll(".cell").forEach((cell) =>{
-            cell.classList.remove("blue");
-    });
+    setTimeout(() => {
 
-    document.querySelectorAll(".disc").forEach((disc) => {
-        disc.style.transition = `transform ${cleaningTime / 1000}s cubic-bezier(0.33, 0, 0.66, 0.33)`;
-    });
+        if (line == null) {
 
-    document.querySelectorAll(".disc").forEach((disc) => {
-
-        let offset;
-
-        let board = document.querySelector(".board");
-
-        if (window.innerHeight > window.innerWidth) {
-            offset = board.offsetHeight + (board.offsetHeight / 6 ) * 1.5 + window.innerHeight - board.offsetTop - board.offsetHeight;
-        } else {
-            offset = board.offsetHeight + (board.offsetHeight / 6 ) * 1.5 + window.innerWidth - board.offsetTop - board.offsetHeight;
+            designed.classList.add('over');
+    
+            setTimeout(() => {
+                document.querySelector('.board').addEventListener('touchstart', newGame);
+                document.querySelector('.board').addEventListener('mousedown', newGame);
+            }, 100);
+    
+            return;
         }
 
+        let discs = document.querySelectorAll('.yellow, .red');
+        let lineIdx = line.map(d => coordsToIndex(d[0], d[1]));
+
+        discs.forEach((disc) => {
+
+            let c = Number(disc.dataset.c);
+            let r = Number(disc.dataset.r);
+
+            if (!lineIdx.includes(coordsToIndex(r, c))) {
+                disc.classList.add('fade');
+            }
+        });
+
+        setTimeout(() => {
+
+            let board1D = [...board].flat();
+
+            designed.classList.add('over');
+    
+            document.querySelectorAll('.cell').forEach((cell, i) => {
+                if (board1D[i] == 0) cell.classList.add('disabled');
+            });
+
+            setTimeout(() => {
+                document.querySelector('.board').addEventListener('touchstart', newGame);
+                document.querySelector('.board').addEventListener('mousedown', newGame);
+            }, 1000);
+
+        }, 1000);
+
+    }, delay);
+}
+
+const clearBoard = () => {
+
+    let board = document.querySelector('.board');
+    let cells = document.querySelectorAll('.cell');
+    let designed = document.querySelector('#designed');
+    let discs = document.querySelectorAll('.yellow, .red');
+    let maxSide = screen.height > screen.width ? window.innerHeight: window.innerWidth;
+    let offset = board.offsetHeight + (board.offsetHeight / 6 ) * 1.5 + maxSide - board.offsetTop - board.offsetHeight;
+
+    board.removeEventListener('touchstart', newGame);
+    board.removeEventListener('mousedown', newGame);
+
+    cells.forEach((cell) => cell.classList.remove('disabled'));
+
+    designed.classList.remove('over');
+
+    discs.forEach((disc) => {
+
+        disc.style.transitionDuration = '0.8s';
         disc.style.transform += `translateY(${offset}px)`;
+
+        disc.addEventListener('transitionend', () => {
+            
+            disc.removeAttribute('style');
+            disc.removeAttribute('class');
+            disc.classList.add('disc');
+
+            delete disc.dataset.r;
+            delete disc.dataset.c;
+
+        }, {once: true});
     });
 }
 
-const resetDiscs = () => {
+const enableTouch = () => {
 
-    document.querySelector("#designed").style = "";
-    document.querySelectorAll(".cell").forEach((cell) =>{
-        cell.style = "";
-    });
-    document.querySelectorAll(".disc").forEach((disc) =>{
-        disc.style = "";
-        disc.classList.remove("red");
-        disc.classList.remove("yellow");
+    let cells = document.querySelectorAll('.cell');
 
-        for (let i = 1; i <= numberOfRows * numberOfColumns; i++) {
-            disc.classList.remove(`${i}`);
-        }
-    });
+    for (let cell of cells) {
+        cell.addEventListener('touchstart', humanTurn);
+        cell.addEventListener('mousedown', humanTurn);
+    }
+}
+
+const disableTouch = () => {
+
+    let cells = document.querySelectorAll('.cell');
+
+    for (let cell of cells) {
+        cell.removeEventListener('touchstart', humanTurn);
+        cell.removeEventListener('mousedown', humanTurn);
+    }
+}
+
+const disableTapZoom = () => {
+
+    const preventDefault = (e) => e.preventDefault();
+
+    document.body.addEventListener('touchstart', preventDefault, {passive: false});
+    document.body.addEventListener('mousedown', preventDefault, {passive: false});
 }

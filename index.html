@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Connect 4</title>
-    <meta name="description" content="Be the first to get four of your discs in a row - horizontally, vertically or diagonally.">
-    <meta name="keywords" content="connect,4,four,board,game,play,disc,row,line,logic,strategy,kids,family">
+    <meta name="description" content="Be the first to get four of your discs in a row — horizontally, vertically, or diagonally">
+    <meta name="keywords" content="board,game,play,online,disc,row,column,line,logic,tactics,strategy,brain,mind,kids,family">
     <meta name="author" content="Alexander Berson">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="google" content="notranslate">
 
+    <meta name="google" content="notranslate">
     <meta name="apple-itunes-app" content="app-id=1568835389">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="google" content="notranslate"> 
@@ -17,24 +17,22 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Four">
-    <meta name="theme-color" content="#ffffff">
     <link rel="apple-touch-icon" sizes="180x180" href="images/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="images/icons/favicon-16x16.png">
     <link rel="shortcut icon" href="images/icons/favicon.ico">
-    <link rel="mask-icon" href="images/icons/safari-pinned-tab.svg" color="#ff0000">  
+    <link rel="mask-icon" href="images/icons/safari-pinned-tab.svg" color="#ff0000">
     <meta name="msapplication-TileColor" content="#2b5797">
     <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" type="text/css" href="css/style.css">
-    <script src="js/ui.js"></script>
-    <script src="js/turn.js"></script>
-    <script src="js/evaluation.js"></script>
-    <script src="js/win.js"></script>
-    <script src="js/ai.js"></script>
-    <script src="js/connect4.js"></script>
+    <script src="js/ui.js" defer></script>
+    <script src="js/evaluation.js" defer></script>
+    <script src="js/win.js" defer></script>
+    <script src="js/ai.js" defer></script>
+    <script src="js/connect4.js" defer></script>
 </head>
-<body>
+<body class="noselect">
     <div id="outer">
         <div id="middle">
             <div id="inner">
@@ -43,91 +41,91 @@
                 </header>
                 <main>
                     <div class="board">
-                        <div id="cell1" class="cell"></div>
-                        <div id="cell2" class="cell"></div>
-                        <div id="cell3" class="cell"></div>
-                        <div id="cell4" class="cell"></div>
-                        <div id="cell5" class="cell"></div>
-                        <div id="cell6" class="cell"></div>
-                        <div id="cell7" class="cell"></div>
-                        <div id="cell8" class="cell"></div>
-                        <div id="cell9" class="cell"></div>
-                        <div id="cell10" class="cell"></div>
-                        <div id="cell11" class="cell"></div>
-                        <div id="cell12" class="cell"></div>
-                        <div id="cell13" class="cell"></div>
-                        <div id="cell14" class="cell"></div>
-                        <div id="cell15" class="cell"></div>
-                        <div id="cell16" class="cell"></div>
-                        <div id="cell17" class="cell"></div>
-                        <div id="cell18" class="cell"></div>
-                        <div id="cell19" class="cell"></div>
-                        <div id="cell20" class="cell"></div>
-                        <div id="cell21" class="cell"></div>
-                        <div id="cell22" class="cell"></div>
-                        <div id="cell23" class="cell"></div>
-                        <div id="cell24" class="cell"></div>
-                        <div id="cell25" class="cell"></div>
-                        <div id="cell26" class="cell"></div>
-                        <div id="cell27" class="cell"></div>
-                        <div id="cell28" class="cell"></div>
-                        <div id="cell29" class="cell"></div>
-                        <div id="cell30" class="cell"></div>
-                        <div id="cell31" class="cell"></div>
-                        <div id="cell32" class="cell"></div>
-                        <div id="cell33" class="cell"></div>
-                        <div id="cell34" class="cell"></div>
-                        <div id="cell35" class="cell"></div>
-                        <div id="cell36" class="cell"></div>
-                        <div id="cell37" class="cell"></div>
-                        <div id="cell38" class="cell"></div>
-                        <div id="cell39" class="cell"></div>
-                        <div id="cell40" class="cell"></div>
-                        <div id="cell41" class="cell"></div>
-                        <div id="cell42" class="cell"></div>
+                        <div id="c1" class="cell"></div>
+                        <div id="c2" class="cell"></div>
+                        <div id="c3" class="cell"></div>
+                        <div id="c4" class="cell"></div>
+                        <div id="c5" class="cell"></div>
+                        <div id="c6" class="cell"></div>
+                        <div id="c7" class="cell"></div>
+                        <div id="c8" class="cell"></div>
+                        <div id="c9" class="cell"></div>
+                        <div id="c10" class="cell"></div>
+                        <div id="c11" class="cell"></div>
+                        <div id="c12" class="cell"></div>
+                        <div id="c13" class="cell"></div>
+                        <div id="c14" class="cell"></div>
+                        <div id="c15" class="cell"></div>
+                        <div id="c16" class="cell"></div>
+                        <div id="c17" class="cell"></div>
+                        <div id="c18" class="cell"></div>
+                        <div id="c19" class="cell"></div>
+                        <div id="c20" class="cell"></div>
+                        <div id="c21" class="cell"></div>
+                        <div id="c22" class="cell"></div>
+                        <div id="c23" class="cell"></div>
+                        <div id="c24" class="cell"></div>
+                        <div id="c25" class="cell"></div>
+                        <div id="c26" class="cell"></div>
+                        <div id="c27" class="cell"></div>
+                        <div id="c28" class="cell"></div>
+                        <div id="c29" class="cell"></div>
+                        <div id="c30" class="cell"></div>
+                        <div id="c31" class="cell"></div>
+                        <div id="c32" class="cell"></div>
+                        <div id="c33" class="cell"></div>
+                        <div id="c34" class="cell"></div>
+                        <div id="c35" class="cell"></div>
+                        <div id="c36" class="cell"></div>
+                        <div id="c37" class="cell"></div>
+                        <div id="c38" class="cell"></div>
+                        <div id="c39" class="cell"></div>
+                        <div id="c40" class="cell"></div>
+                        <div id="c41" class="cell"></div>
+                        <div id="c42" class="cell"></div>
 
-                        <div id="disc1" class="disc"></div>
-                        <div id="disc2" class="disc"></div>
-                        <div id="disc3" class="disc"></div>
-                        <div id="disc4" class="disc"></div>
-                        <div id="disc5" class="disc"></div>
-                        <div id="disc6" class="disc"></div>
-                        <div id="disc7" class="disc"></div>
-                        <div id="disc8" class="disc"></div>
-                        <div id="disc9" class="disc"></div>
-                        <div id="disc10" class="disc"></div>
-                        <div id="disc11" class="disc"></div>
-                        <div id="disc12" class="disc"></div>
-                        <div id="disc13" class="disc"></div>
-                        <div id="disc14" class="disc"></div>
-                        <div id="disc15" class="disc"></div>
-                        <div id="disc16" class="disc"></div>
-                        <div id="disc17" class="disc"></div>
-                        <div id="disc18" class="disc"></div>
-                        <div id="disc19" class="disc"></div>
-                        <div id="disc20" class="disc"></div>
-                        <div id="disc21" class="disc"></div>
-                        <div id="disc22" class="disc"></div>
-                        <div id="disc23" class="disc"></div>
-                        <div id="disc24" class="disc"></div>
-                        <div id="disc25" class="disc"></div>
-                        <div id="disc26" class="disc"></div>
-                        <div id="disc27" class="disc"></div>
-                        <div id="disc28" class="disc"></div>
-                        <div id="disc29" class="disc"></div>
-                        <div id="disc30" class="disc"></div>
-                        <div id="disc31" class="disc"></div>
-                        <div id="disc32" class="disc"></div>
-                        <div id="disc33" class="disc"></div>
-                        <div id="disc34" class="disc"></div>
-                        <div id="disc35" class="disc"></div>
-                        <div id="disc36" class="disc"></div>
-                        <div id="disc37" class="disc"></div>
-                        <div id="disc38" class="disc"></div>
-                        <div id="disc39" class="disc"></div>
-                        <div id="disc40" class="disc"></div>
-                        <div id="disc41" class="disc"></div>
-                        <div id="disc42" class="disc"></div>
+                        <div id="d1" class="disc"></div>
+                        <div id="d2" class="disc"></div>
+                        <div id="d3" class="disc"></div>
+                        <div id="d4" class="disc"></div>
+                        <div id="d5" class="disc"></div>
+                        <div id="d6" class="disc"></div>
+                        <div id="d7" class="disc"></div>
+                        <div id="d8" class="disc"></div>
+                        <div id="d9" class="disc"></div>
+                        <div id="d10" class="disc"></div>
+                        <div id="d11" class="disc"></div>
+                        <div id="d12" class="disc"></div>
+                        <div id="d13" class="disc"></div>
+                        <div id="d14" class="disc"></div>
+                        <div id="d15" class="disc"></div>
+                        <div id="d16" class="disc"></div>
+                        <div id="d17" class="disc"></div>
+                        <div id="d18" class="disc"></div>
+                        <div id="d19" class="disc"></div>
+                        <div id="d20" class="disc"></div>
+                        <div id="d21" class="disc"></div>
+                        <div id="d22" class="disc"></div>
+                        <div id="d23" class="disc"></div>
+                        <div id="d24" class="disc"></div>
+                        <div id="d25" class="disc"></div>
+                        <div id="d26" class="disc"></div>
+                        <div id="d27" class="disc"></div>
+                        <div id="d28" class="disc"></div>
+                        <div id="d29" class="disc"></div>
+                        <div id="d30" class="disc"></div>
+                        <div id="d31" class="disc"></div>
+                        <div id="d32" class="disc"></div>
+                        <div id="d33" class="disc"></div>
+                        <div id="d34" class="disc"></div>
+                        <div id="d35" class="disc"></div>
+                        <div id="d36" class="disc"></div>
+                        <div id="d37" class="disc"></div>
+                        <div id="d38" class="disc"></div>
+                        <div id="d39" class="disc"></div>
+                        <div id="d40" class="disc"></div>
+                        <div id="d41" class="disc"></div>
+                        <div id="d42" class="disc"></div>
 
                         <div id="designed">
                             Designed by Alexander Berson
